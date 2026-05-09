@@ -35,6 +35,7 @@ const PartyInventory = () => {
     const [chipLayout, setChipLayout] = useState('');
     const [qtyOfSheet, setQtyOfSheet] = useState('');
     const [keyEncoding, setKeyEncoding] = useState('');
+    const [designParty, setDesignParty] = useState('');
     const [txDate, setTxDate] = useState('');
     const [history, setHistory] = useState([]);
     const [editingTx, setEditingTx] = useState(null);
@@ -78,6 +79,7 @@ const PartyInventory = () => {
         setChipLayout('');
         setQtyOfSheet('');
         setKeyEncoding('');
+        setDesignParty('');
         setTxDate(todayStr());
         setModalOpen(true);
     };
@@ -96,6 +98,7 @@ const PartyInventory = () => {
                 chipLayout: transactionType === 'IN' ? chipLayout : undefined,
                 qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : undefined,
                 keyEncoding: transactionType === 'IN' ? keyEncoding : undefined,
+                designParty: transactionType === 'IN' ? designParty : undefined,
                 date: txDate || undefined
             });
             setModalOpen(false);
@@ -356,9 +359,10 @@ const PartyInventory = () => {
                                     <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Design / Party</label>
                                     <input
                                         type="text"
-                                        value={partyName}
-                                        readOnly
-                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 700, outline: 'none', background: '#f1f5f9', color: '#475569', boxSizing: 'border-box'}}
+                                        value={designParty}
+                                        onChange={e => setDesignParty(e.target.value)}
+                                        placeholder="Enter design or party..."
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', background: 'white', color: '#1e293b', boxSizing: 'border-box'}}
                                     />
                                 </div>
                                 <div>
@@ -497,7 +501,7 @@ const PartyInventory = () => {
                                                     {new Date(tx.date).toLocaleDateString('en-GB')}
                                                 </td>
                                                 <td style={{padding: '10px 14px', fontWeight: 600, color: '#475569'}}>
-                                                    {tx.party || '—'}
+                                                    {tx.designParty || tx.party || '—'}
                                                 </td>
                                                 <td style={{padding: '10px 14px', fontWeight: 700, color: '#1e293b', textAlign: 'center'}}>
                                                     {tx.chipLayout || '—'}
