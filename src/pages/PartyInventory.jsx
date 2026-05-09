@@ -398,6 +398,14 @@ const PartyInventory = () => {
                                     </select>
                                 </div>
                             </div>
+                            {chipLayout && qty && (
+                                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Total (Qty × Layout)</label>
+                                    <div className="text-xl font-black text-[#F26622]">
+                                        {(Number(qty) * Number(chipLayout)).toLocaleString()}
+                                    </div>
+                                </div>
+                            )}
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Notes</label>
                                 <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} className="input-field py-2.5" placeholder="Reference..." />
