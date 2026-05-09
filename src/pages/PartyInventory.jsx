@@ -138,7 +138,7 @@ const PartyInventory = () => {
                 qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : undefined,
                 keyEncoding: transactionType === 'IN' ? keyEncoding : undefined,
                 designParty: transactionType === 'IN' ? designParty : undefined,
-                store: transactionType === 'OUT' ? store : undefined,
+                store: store || undefined,
                 date: txDate || undefined
             });
             setModalOpen(false);
@@ -448,18 +448,18 @@ const PartyInventory = () => {
                         </div>
 
                         {/* Spreadsheet-style row label bar */}
-                        <div style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', padding: '0.5rem 0', textAlign: 'center'}}>
-                            {['Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Key / Encoding'].map(col => (
+                        <div style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr', padding: '0.5rem 0', textAlign: 'center'}}>
+                            {['Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Key / Encoding', 'Store'].map(col => (
                                 <div key={col} style={{fontSize: '9px', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', padding: '0 0.5rem'}}>{col}</div>
                             ))}
                         </div>
-                        <div style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', padding: '0 0', textAlign: 'center'}}>
-                            {['', '', '', 'Chip Stock IN', 'Cards Qty', 'Remaining Chip', 'Remarks'].map((col, i) => i < 5 ? null : null)}
+                        <div style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr', padding: '0 0', textAlign: 'center'}}>
+                            {['', '', '', 'Chip Stock IN', 'Cards Qty', 'Remaining Chip', 'Remarks'].map((col, i) => i < 6 ? null : null)}
                         </div>
 
                         <form onSubmit={handleTransaction} style={{padding: '1.5rem 2rem', background: 'white'}}>
-                            {/* Row 1: Date | Design/Party | Chip Layout | Qnty of Sheet | Key/Encoding */}
-                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem'}}>
+                            {/* Row 1: Date | Design/Party | Chip Layout | Qnty of Sheet | Key/Encoding | Store */}
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem'}}>
                                 <div>
                                     <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Date</label>
                                     <input
@@ -510,6 +510,19 @@ const PartyInventory = () => {
                                         placeholder="e.g. MIFARE"
                                         style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box'}}
                                     />
+                                </div>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Store</label>
+                                    <select
+                                        value={store}
+                                        onChange={e => setStore(e.target.value)}
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box', background: 'white', cursor: 'pointer'}}
+                                        required
+                                    >
+                                        <option value="">-- Select Store --</option>
+                                        <option value="Office">Office</option>
+                                        <option value="Unit">Unit</option>
+                                    </select>
                                 </div>
                             </div>
 
