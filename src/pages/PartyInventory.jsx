@@ -352,13 +352,15 @@ const PartyInventory = () => {
                                 </div>
                                 <div>
                                     <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Chip Layout</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={chipLayout}
                                         onChange={e => setChipLayout(e.target.value)}
-                                        placeholder="e.g. 4×10"
-                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box'}}
-                                    />
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box', background: 'white', cursor: 'pointer'}}
+                                    >
+                                        <option value="">-- Select --</option>
+                                        <option value="24">24</option>
+                                        <option value="10">10</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Qnty of Sheet</label>
