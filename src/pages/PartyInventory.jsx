@@ -31,12 +31,18 @@ const PartyInventory = () => {
     const [qty, setQty] = useState('');
     const [editName, setEditName] = useState('');
     const [newAssetName, setNewAssetName] = useState('');
-    const [notes, setNotes] = useState(''); // New customer field
+    const [notes, setNotes] = useState('');
+    const [chipLayout, setChipLayout] = useState('');
+    const [qtyOfSheet, setQtyOfSheet] = useState('');
+    const [keyEncoding, setKeyEncoding] = useState('');
+    const [txDate, setTxDate] = useState('');
     const [history, setHistory] = useState([]);
-    const [editingTx, setEditingTx] = useState(null); // Track which log to edit
+    const [editingTx, setEditingTx] = useState(null);
     const [editDate, setEditDate] = useState('');
     const [editNotes, setEditNotes] = useState('');
     const [saving, setSaving] = useState(false);
+
+    const todayStr = () => new Date().toISOString().split('T')[0];
 
     const fetchPartyStock = async () => {
         try {
@@ -57,7 +63,11 @@ const PartyInventory = () => {
         setSelectedProduct(product);
         setTransactionType(type);
         setQty('');
-        setNotes(''); // Clear notes every time
+        setNotes('');
+        setChipLayout('');
+        setQtyOfSheet('');
+        setKeyEncoding('');
+        setTxDate(todayStr());
         setModalOpen(true);
     };
 
@@ -71,7 +81,11 @@ const PartyInventory = () => {
                 type: transactionType,
                 quantity: qty,
                 party: partyName,
-                notes: notes // Send customer/note
+                notes,
+                chipLayout: transactionType === 'IN' ? chipLayout : undefined,
+                qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : undefined,
+                keyEncoding: transactionType === 'IN' ? keyEncoding : undefined,
+                date: txDate || undefined
             });
             setModalOpen(false);
             fetchPartyStock();
@@ -252,16 +266,17 @@ const PartyInventory = () => {
                 </table>
             </div>
 
-            {/* Simple Modals */}
-            {modalOpen && (
+            {/* Transaction Modals */}
+            {modalOpen && transactionType === 'OUT' && (
+                // ADD STOCK — simple form
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h4 className="text-xl font-bold mb-6">{transactionType === 'OUT' ? 'Add Party Stock' : 'Minus Party Stock'}</h4>
+                        <h4 className="text-xl font-bold mb-6">Add Party Stock</h4>
                         <form onSubmit={handleTransaction} className="space-y-6">
                             {allProducts.length > 1 && (
                                 <div className="space-y-1">
                                     <label className="text-xs font-bold text-slate-400">Select Product</label>
-                                    <select 
+                                    <select
                                         value={selectedProduct?._id}
                                         onChange={(e) => setSelectedProduct(allProducts.find(p => p._id === e.target.value))}
                                         className="input-field"
@@ -277,12 +292,143 @@ const PartyInventory = () => {
                                 <input type="number" autoFocus value={qty} onChange={(e) => setQty(e.target.value)} className="input-field text-2xl font-bold py-4 text-center" placeholder="0" />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-400">Customer / Notes</label>
-                                <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} className="input-field py-3" placeholder="Reference Name..." />
+                                <label className="text-xs font-bold text-slate-400">Notes</label>
+                                <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} className="input-field py-3" placeholder="Reference..." />
                             </div>
                             <div className="flex gap-4 pt-4">
                                 <button type="button" onClick={() => setModalOpen(false)} className="flex-1 font-bold text-slate-400">Cancel</button>
                                 <button type="submit" disabled={saving} className="flex-2 btn btn-primary py-3 font-bold">{saving ? '...' : 'CONFIRM'}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {modalOpen && transactionType === 'IN' && (
+                // MINUS STOCK — detailed spreadsheet-style form
+                <div className="modal-overlay" style={{alignItems: 'flex-start', paddingTop: '2rem', overflowY: 'auto'}}>
+                    <div className="modal-content" style={{maxWidth: '680px', width: '100%', borderRadius: '1.5rem', padding: 0, overflow: 'hidden'}}>
+                        {/* Header */}
+                        <div style={{background: '#1e293b', padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <div>
+                                <div style={{color: '#94a3b8', fontSize: '10px', fontWeight: 900, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '4px'}}>STOCK DEDUCTION ENTRY</div>
+                                <h4 style={{color: 'white', fontSize: '1.25rem', fontWeight: 900, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.5px'}}>{selectedProduct?.name}</h4>
+                            </div>
+                            <button type="button" onClick={() => setModalOpen(false)} style={{background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '0.75rem', padding: '0.5rem', color: 'white', cursor: 'pointer', lineHeight: 0}}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Spreadsheet-style row label bar */}
+                        <div style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', padding: '0.5rem 0', textAlign: 'center'}}>
+                            {['Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Key / Encoding'].map(col => (
+                                <div key={col} style={{fontSize: '9px', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', padding: '0 0.5rem'}}>{col}</div>
+                            ))}
+                        </div>
+                        <div style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', padding: '0 0', textAlign: 'center'}}>
+                            {['', '', '', 'Chip Stock IN', 'Cards Qty', 'Remaining Chip', 'Remarks'].map((col, i) => i < 5 ? null : null)}
+                        </div>
+
+                        <form onSubmit={handleTransaction} style={{padding: '1.5rem 2rem', background: 'white'}}>
+                            {/* Row 1: Date | Design/Party | Chip Layout | Qnty of Sheet | Key/Encoding */}
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem'}}>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Date</label>
+                                    <input
+                                        type="date"
+                                        value={txDate}
+                                        onChange={e => setTxDate(e.target.value)}
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box'}}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Design / Party</label>
+                                    <input
+                                        type="text"
+                                        value={partyName}
+                                        readOnly
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 700, outline: 'none', background: '#f1f5f9', color: '#475569', boxSizing: 'border-box'}}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Chip Layout</label>
+                                    <input
+                                        type="text"
+                                        value={chipLayout}
+                                        onChange={e => setChipLayout(e.target.value)}
+                                        placeholder="e.g. 4×10"
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box'}}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Qnty of Sheet</label>
+                                    <input
+                                        type="number"
+                                        value={qtyOfSheet}
+                                        onChange={e => setQtyOfSheet(e.target.value)}
+                                        placeholder="0"
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box'}}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Key / Encoding</label>
+                                    <input
+                                        type="text"
+                                        value={keyEncoding}
+                                        onChange={e => setKeyEncoding(e.target.value)}
+                                        placeholder="e.g. MIFARE"
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box'}}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div style={{height: '1px', background: '#e2e8f0', margin: '1rem 0'}} />
+
+                            {/* Row 2: Chip Stock IN | Cards Qty | Remaining Chip | Remarks */}
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem'}}>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Chip Stock IN</label>
+                                    <div style={{border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '14px', fontWeight: 900, background: '#f8fafc', color: '#1e293b', textAlign: 'center'}}>
+                                        {selectedProduct?.partyBalance ?? selectedProduct?.totalStock ?? '—'}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#F26622', marginBottom: '4px', textTransform: 'uppercase'}}>Cards Qty ↓</label>
+                                    <input
+                                        type="number"
+                                        autoFocus
+                                        value={qty}
+                                        onChange={e => setQty(e.target.value)}
+                                        placeholder="0"
+                                        required
+                                        style={{width: '100%', border: '2px solid #F26622', borderRadius: '8px', padding: '8px 6px', fontSize: '18px', fontWeight: 900, outline: 'none', textAlign: 'center', color: '#F26622', boxSizing: 'border-box'}}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Remaining Chip</label>
+                                    <div style={{border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '14px', fontWeight: 900, background: '#f0fdf4', color: '#16a34a', textAlign: 'center'}}>
+                                        {(selectedProduct?.partyBalance ?? selectedProduct?.totalStock ?? 0) - (Number(qty) || 0)}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Remarks</label>
+                                    <input
+                                        type="text"
+                                        value={notes}
+                                        onChange={e => setNotes(e.target.value)}
+                                        placeholder="Optional notes..."
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box'}}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div style={{display: 'flex', gap: '0.75rem'}}>
+                                <button type="button" onClick={() => setModalOpen(false)} style={{flex: 1, padding: '0.875rem', fontWeight: 700, fontSize: '13px', background: '#f1f5f9', border: 'none', borderRadius: '0.75rem', color: '#64748b', cursor: 'pointer'}}>Cancel</button>
+                                <button type="submit" disabled={saving} style={{flex: 2, padding: '0.875rem', fontWeight: 900, fontSize: '13px', background: saving ? '#94a3b8' : '#F26622', border: 'none', borderRadius: '0.75rem', color: 'white', cursor: saving ? 'not-allowed' : 'pointer', letterSpacing: '1px', textTransform: 'uppercase'}}>
+                                    {saving ? 'SAVING...' : 'CONFIRM DEDUCTION'}
+                                </button>
                             </div>
                         </form>
                     </div>
