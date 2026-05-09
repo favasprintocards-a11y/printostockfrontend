@@ -448,6 +448,21 @@ const PartyInventory = () => {
                             </button>
                         </div>
 
+                        {/* Current Balance Display */}
+                        {selectedProduct?.breakdown && selectedProduct.breakdown.length > 0 && (
+                            <div style={{background: '#f8fafc', padding: '1rem 2rem', borderBottom: '1px solid #e2e8f0'}}>
+                                <div style={{fontSize: '10px', fontWeight: 800, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px'}}>Current Available Stock</div>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
+                                    {selectedProduct.breakdown.map((b, i) => (
+                                        <div key={i} style={{display: 'flex', justifyContent: 'space-between', background: 'white', padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '11px', fontWeight: 700}}>
+                                            <span style={{color: '#475569'}}>{b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `Layout-${b.layout}`})</span>
+                                            <span style={{color: '#0f172a'}}>x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance} Cards</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Spreadsheet-style row label bar */}
                         <div style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr', padding: '0.5rem 0', textAlign: 'center'}}>
                             {['Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Key / Encoding', 'Store'].map(col => (
