@@ -304,38 +304,58 @@ const PartyInventory = () => {
             {/* Simple Table */}
             <div className="card overflow-hidden p-0 border border-slate-200">
                 <table className="min-w-full">
-                    <thead className="bg-slate-100 border-b-2 border-slate-200">
+                    <thead>
                         <tr>
-                            <th className="px-6 py-4 text-left text-[11px] font-black text-slate-500 uppercase tracking-widest w-1/3">Stock Description</th>
-                            <th className="px-6 py-4 text-center text-[11px] font-black text-slate-500 uppercase tracking-widest w-1/3">Party Balance</th>
-                            <th className="px-6 py-4 text-right text-[11px] font-black text-slate-500 uppercase tracking-widest w-1/3">Actions</th>
+                            <th>Stock Description</th>
+                            <th className="text-center">Party Balance</th>
+                            <th className="text-center">Unit Balance</th>
+                            <th className="text-center">Office Balance</th>
+                            <th className="text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filtered.length === 0 ? (
-                            <tr><td colSpan="3" className="text-center py-12 text-slate-400">No stock found.</td></tr>
-                        ) : filtered.map(product => (
+                            <tr><td colSpan="5" className="text-center py-12 text-slate-400">No stock found.</td></tr>
+                        ) : filtered.map(product => {
+                            const unitBreakdown = product.breakdown ? product.breakdown.filter(b => b.store && b.store.toLowerCase() === 'unit') : [];
+                            const officeBreakdown = product.breakdown ? product.breakdown.filter(b => b.store && b.store.toLowerCase() === 'office') : [];
+                            
+                            return (
                             <tr key={product._id} className="hover:bg-slate-50 transition-colors">
-                                <td className="px-6 py-4 font-bold text-slate-800">{product.name}</td>
-                                <td className="px-6 py-4 text-center">
+                                <td className="font-bold text-slate-800">{product.name}</td>
+                                <td className="text-center py-3">
                                     <div className="text-xl font-bold text-[#F26622]">
                                         {product.breakdown && product.breakdown.length > 0 
                                             ? product.breakdown.reduce((sum, b) => sum + (b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance), 0) 
                                             : product.partyBalance} <span className="text-[10px] text-slate-400">TOTAL</span>
                                     </div>
-                                    {product.breakdown && product.breakdown.length > 0 && (
-                                        <div className="mt-2 flex flex-col items-center gap-1 w-full max-w-[220px] mx-auto">
-                                            {product.breakdown.map((b, i) => (
+                                </td>
+                                <td className="text-center py-3">
+                                    {unitBreakdown.length > 0 ? (
+                                        <div className="flex flex-col items-center gap-1 w-full max-w-[200px] mx-auto">
+                                            {unitBreakdown.map((b, i) => (
                                                 <div key={i} className="flex justify-between w-full bg-slate-50 border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                                                    <span>{b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `Layout-${b.layout}`})</span>
+                                                    <span>{b.layout === 'N/A' ? 'NO LAYOUT' : `Layout-${b.layout}`}</span>
                                                     <span className="text-slate-800 ml-3">x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance}</span>
                                                 </div>
                                             ))}
                                         </div>
-                                    )}
+                                    ) : <span className="text-slate-300 text-sm">—</span>}
                                 </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex justify-end gap-2">
+                                <td className="text-center py-3">
+                                    {officeBreakdown.length > 0 ? (
+                                        <div className="flex flex-col items-center gap-1 w-full max-w-[200px] mx-auto">
+                                            {officeBreakdown.map((b, i) => (
+                                                <div key={i} className="flex justify-between w-full bg-slate-50 border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                                                    <span>{b.layout === 'N/A' ? 'NO LAYOUT' : `Layout-${b.layout}`}</span>
+                                                    <span className="text-slate-800 ml-3">x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : <span className="text-slate-300 text-sm">—</span>}
+                                </td>
+                                <td>
+                                    <div className="flex justify-end gap-2 px-4">
                                         <button onClick={() => { setSelectedProduct(product); setEditName(product.name); setEditModalOpen(true); }} className="p-2.5 text-slate-500 hover:text-slate-900 bg-slate-50 rounded-lg"><Edit2 size={16} /></button>
                                         <button onClick={() => handleDeleteProduct(product._id)} className="p-2.5 text-slate-400 hover:text-rose-600 bg-slate-50 rounded-lg"><Trash2 size={16} /></button>
                                         <button onClick={() => viewHistory(product)} className="p-2.5 text-slate-700 hover:text-slate-900 bg-slate-100 rounded-lg"><History size={16} /></button>
@@ -345,7 +365,8 @@ const PartyInventory = () => {
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                        );
+                        })}
                     </tbody>
                 </table>
             </div>
