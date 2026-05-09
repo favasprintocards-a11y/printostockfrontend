@@ -660,11 +660,11 @@ const PartyInventory = () => {
                                                 <td style={{padding: '10px 14px', fontWeight: 600, color: '#475569'}}>
                                                     {tx.keyEncoding || '—'}
                                                 </td>
-                                                <td style={{padding: '10px 14px', fontWeight: 600, color: '#64748b', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                                                    {tx.notes || '—'}
-                                                </td>
                                                 <td style={{padding: '10px 14px', fontWeight: 600, color: '#475569'}}>
                                                     {tx.store || '—'}
+                                                </td>
+                                                <td style={{padding: '10px 14px', fontWeight: 600, color: '#64748b', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                                                    {tx.notes || '—'}
                                                 </td>
                                                 <td style={{padding: '10px 14px'}}>
                                                     <span style={{
