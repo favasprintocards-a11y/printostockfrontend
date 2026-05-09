@@ -359,7 +359,11 @@ const PartyInventory = () => {
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Store</label>
-                                <input type="text" value={store} onChange={e => setStore(e.target.value)} className="input-field py-2.5" placeholder="Store name or location..." />
+                                <select value={store} onChange={e => setStore(e.target.value)} className="input-field py-2.5">
+                                    <option value="">-- Select Store --</option>
+                                    <option value="Office">Office</option>
+                                    <option value="Unit">Unit</option>
+                                </select>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Notes</label>
