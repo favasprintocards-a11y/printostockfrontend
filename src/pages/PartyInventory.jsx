@@ -44,6 +44,17 @@ const PartyInventory = () => {
 
     const todayStr = () => new Date().toISOString().split('T')[0];
 
+    // Auto-calculate Cards Qty = Chip Layout × Qnty of Sheet
+    useEffect(() => {
+        const layout = Number(chipLayout);
+        const sheets = Number(qtyOfSheet);
+        if (layout > 0 && sheets > 0) {
+            setQty(String(layout * sheets));
+        } else {
+            setQty('');
+        }
+    }, [chipLayout, qtyOfSheet]);
+
     const fetchPartyStock = async () => {
         try {
             const res = await api.get(`/api/party/${partyName}/stock`);
@@ -387,19 +398,13 @@ const PartyInventory = () => {
                             {/* Divider */}
                             <div style={{height: '1px', background: '#e2e8f0', margin: '1rem 0'}} />
 
-                            {/* Row 2: Cards Qty | Remarks */}
+                            {/* Row 2: Cards Qty (auto) | Remarks */}
                             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem'}}>
                                 <div>
-                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#F26622', marginBottom: '4px', textTransform: 'uppercase'}}>Cards Qty ↓</label>
-                                    <input
-                                        type="number"
-                                        autoFocus
-                                        value={qty}
-                                        onChange={e => setQty(e.target.value)}
-                                        placeholder="0"
-                                        required
-                                        style={{width: '100%', border: '2px solid #F26622', borderRadius: '8px', padding: '8px 6px', fontSize: '18px', fontWeight: 900, outline: 'none', textAlign: 'center', color: '#F26622', boxSizing: 'border-box'}}
-                                    />
+                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#F26622', marginBottom: '4px', textTransform: 'uppercase'}}>Cards Qty (Layout × Sheets)</label>
+                                    <div style={{border: '2px solid #F26622', borderRadius: '8px', padding: '8px 6px', fontSize: '22px', fontWeight: 900, textAlign: 'center', color: qty ? '#F26622' : '#cbd5e1', background: '#fff7f3', boxSizing: 'border-box', minHeight: '44px'}}>
+                                        {qty || '—'}
+                                    </div>
                                 </div>
                                 <div>
                                     <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Remarks</label>
