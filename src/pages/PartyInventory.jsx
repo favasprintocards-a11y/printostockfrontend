@@ -40,6 +40,7 @@ const PartyInventory = () => {
     const [keyEncoding, setKeyEncoding] = useState('');
     const [designParty, setDesignParty] = useState('');
     const [txDate, setTxDate] = useState('');
+    const [store, setStore] = useState('');
     const [history, setHistory] = useState([]);
     const [editingTx, setEditingTx] = useState(null);
     const [editDate, setEditDate] = useState('');
@@ -111,6 +112,7 @@ const PartyInventory = () => {
         setKeyEncoding('');
         setDesignParty('');
         setTxDate(todayStr());
+        setStore('');
         setModalOpen(true);
     };
 
@@ -129,6 +131,7 @@ const PartyInventory = () => {
                 qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : undefined,
                 keyEncoding: transactionType === 'IN' ? keyEncoding : undefined,
                 designParty: transactionType === 'IN' ? designParty : undefined,
+                store: transactionType === 'OUT' ? store : undefined,
                 date: txDate || undefined
             });
             setModalOpen(false);
@@ -312,11 +315,19 @@ const PartyInventory = () => {
 
             {/* Transaction Modals */}
             {modalOpen && transactionType === 'OUT' && (
-                // ADD STOCK — simple form
+                // ADD STOCK — form with date + store
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h4 className="text-xl font-bold mb-6">Add Party Stock</h4>
-                        <form onSubmit={handleTransaction} className="space-y-6">
+                        <div style={{background: '#1e293b', margin: '-1.5rem -1.5rem 1.5rem -1.5rem', padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '1rem 1rem 0 0'}}>
+                            <div>
+                                <div style={{color: '#94a3b8', fontSize: '10px', fontWeight: 900, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '4px'}}>STOCK INTAKE ENTRY</div>
+                                <h4 style={{color: 'white', fontSize: '1.1rem', fontWeight: 900, margin: 0, textTransform: 'uppercase'}}>{selectedProduct?.name}</h4>
+                            </div>
+                            <button type="button" onClick={() => setModalOpen(false)} style={{background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '0.6rem', padding: '0.4rem', color: 'white', cursor: 'pointer', lineHeight: 0}}>
+                                <X size={18} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleTransaction} className="space-y-4">
                             {allProducts.length > 1 && (
                                 <div className="space-y-1">
                                     <label className="text-xs font-bold text-slate-400">Select Product</label>
@@ -331,17 +342,32 @@ const PartyInventory = () => {
                                     </select>
                                 </div>
                             )}
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-400">Quantity</label>
-                                <input type="number" autoFocus value={qty} onChange={(e) => setQty(e.target.value)} className="input-field text-2xl font-bold py-4 text-center" placeholder="0" />
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Date</label>
+                                    <input
+                                        type="date"
+                                        value={txDate}
+                                        onChange={e => setTxDate(e.target.value)}
+                                        className="input-field py-2.5"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Quantity</label>
+                                    <input type="number" autoFocus value={qty} onChange={(e) => setQty(e.target.value)} className="input-field text-xl font-bold py-2.5 text-center" placeholder="0" required />
+                                </div>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-400">Notes</label>
-                                <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} className="input-field py-3" placeholder="Reference..." />
+                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Store</label>
+                                <input type="text" value={store} onChange={e => setStore(e.target.value)} className="input-field py-2.5" placeholder="Store name or location..." />
                             </div>
-                            <div className="flex gap-4 pt-4">
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Notes</label>
+                                <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} className="input-field py-2.5" placeholder="Reference..." />
+                            </div>
+                            <div className="flex gap-4 pt-2">
                                 <button type="button" onClick={() => setModalOpen(false)} className="flex-1 font-bold text-slate-400">Cancel</button>
-                                <button type="submit" disabled={saving} className="flex-2 btn btn-primary py-3 font-bold">{saving ? '...' : 'CONFIRM'}</button>
+                                <button type="submit" disabled={saving} className="flex-2 btn btn-primary py-3 font-bold">{saving ? '...' : 'CONFIRM ADD'}</button>
                             </div>
                         </form>
                     </div>
@@ -512,11 +538,12 @@ const PartyInventory = () => {
                         'Qnty of Sheet': tx.qtyOfSheet ?? '',
                         'Cards Qty': tx.quantity,
                         'Key / Encoding': tx.keyEncoding || '',
+                        'Store': tx.store || '',
                         'Remarks': tx.notes || '',
                         'Type': tx.type === 'OUT' ? 'ADD' : 'MINUS'
                     }));
                     const ws = XLSX.utils.json_to_sheet(rows);
-                    ws['!cols'] = [8, 14, 22, 14, 16, 12, 18, 22, 10].map(w => ({ wch: w }));
+                    ws['!cols'] = [8, 14, 22, 14, 16, 12, 18, 18, 22, 10].map(w => ({ wch: w }));
                     const wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, selectedProduct?.name?.slice(0, 31) || 'History');
                     const fromLabel = dateFrom || 'all';
@@ -600,7 +627,7 @@ const PartyInventory = () => {
                                 <table style={{width: '100%', borderCollapse: 'collapse', fontSize: '13px'}}>
                                     <thead>
                                         <tr style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 1}}>
-                                            {['#', 'Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Cards Qty', 'Key / Encoding', 'Remarks', 'Type'].map(col => (
+                                            {['#', 'Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Cards Qty', 'Key / Encoding', 'Store', 'Remarks', 'Type'].map(col => (
                                                 <th key={col} style={{padding: '10px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap'}}>
                                                     {col}
                                                 </th>
@@ -631,6 +658,9 @@ const PartyInventory = () => {
                                                 </td>
                                                 <td style={{padding: '10px 14px', fontWeight: 600, color: '#64748b', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                                                     {tx.notes || '—'}
+                                                </td>
+                                                <td style={{padding: '10px 14px', fontWeight: 600, color: '#475569'}}>
+                                                    {tx.store || '—'}
                                                 </td>
                                                 <td style={{padding: '10px 14px'}}>
                                                     <span style={{
