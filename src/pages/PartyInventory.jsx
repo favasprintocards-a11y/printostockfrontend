@@ -131,11 +131,11 @@ const PartyInventory = () => {
             await api.post('/api/transactions', {
                 productId: selectedProduct._id,
                 type: transactionType,
-                quantity: qty,
+                quantity: transactionType === 'IN' ? qtyOfSheet : qty,
                 party: partyName,
                 notes,
                 chipLayout: chipLayout || undefined,
-                qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : undefined,
+                qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : qty,
                 keyEncoding: transactionType === 'IN' ? keyEncoding : undefined,
                 designParty: transactionType === 'IN' ? designParty : undefined,
                 store: store || undefined,
@@ -795,10 +795,10 @@ const PartyInventory = () => {
                                                     {tx.chipLayout || '—'}
                                                 </td>
                                                 <td style={{padding: '10px 14px', fontWeight: 700, color: '#1e293b', textAlign: 'center'}}>
-                                                    {tx.qtyOfSheet ?? '—'}
+                                                    {tx.qtyOfSheet ?? tx.quantity ?? '—'}
                                                 </td>
                                                 <td style={{padding: '10px 14px', fontWeight: 900, color: tx.type === 'IN' ? '#F26622' : '#16a34a', fontSize: '15px', textAlign: 'center'}}>
-                                                    {tx.quantity}
+                                                    {tx.chipLayout ? (Number(tx.quantity) * Number(tx.chipLayout)) : tx.quantity}
                                                 </td>
                                                 <td style={{padding: '10px 14px', fontWeight: 600, color: '#475569'}}>
                                                     {tx.keyEncoding || '—'}
