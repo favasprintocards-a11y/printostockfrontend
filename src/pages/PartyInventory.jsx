@@ -317,8 +317,19 @@ const PartyInventory = () => {
                         ) : filtered.map(product => (
                             <tr key={product._id} className="hover:bg-slate-50 transition-colors">
                                 <td className="font-bold text-slate-800">{product.name}</td>
-                                <td className="text-center text-xl font-bold text-[#F26622]">
-                                    {product.partyBalance} <span className="text-[10px] text-slate-400">{product.unit || 'uds'}</span>
+                                <td className="text-center py-3">
+                                    <div className="text-xl font-bold text-[#F26622]">
+                                        {product.partyBalance} <span className="text-[10px] text-slate-400">{product.unit || 'uds'}</span>
+                                    </div>
+                                    {product.breakdown && product.breakdown.length > 0 && (
+                                        <div className="mt-2 flex flex-wrap justify-center gap-1">
+                                            {product.breakdown.map((b, i) => (
+                                                <div key={i} className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                                                    {b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `L-${b.layout}`}): <span className="text-slate-800">{b.balance}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </td>
                                 <td>
                                     <div className="flex justify-end gap-2 px-4">
