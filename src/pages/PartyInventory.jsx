@@ -78,6 +78,8 @@ const PartyInventory = () => {
 
     // Auto-calculate Cards Qty = Chip Layout × Qnty of Sheet
     useEffect(() => {
+        if (transactionType !== 'IN') return; // Only auto-calculate for MINUS STOCK
+        
         const layout = Number(chipLayout);
         const sheets = Number(qtyOfSheet);
         if (layout > 0 && sheets > 0) {
@@ -85,7 +87,7 @@ const PartyInventory = () => {
         } else {
             setQty('');
         }
-    }, [chipLayout, qtyOfSheet]);
+    }, [chipLayout, qtyOfSheet, transactionType]);
 
     const fetchPartyStock = async () => {
         try {
