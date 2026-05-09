@@ -45,6 +45,11 @@ const PartyInventory = () => {
     const [editingTx, setEditingTx] = useState(null);
     const [editDate, setEditDate] = useState('');
     const [editNotes, setEditNotes] = useState('');
+    const [editDesignParty, setEditDesignParty] = useState('');
+    const [editChipLayout, setEditChipLayout] = useState('');
+    const [editQtyOfSheet, setEditQtyOfSheet] = useState('');
+    const [editKeyEncoding, setEditKeyEncoding] = useState('');
+    const [editStore, setEditStore] = useState('');
     const [saving, setSaving] = useState(false);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
@@ -215,12 +220,28 @@ const PartyInventory = () => {
         }
     };
 
+    const openEditTx = (tx) => {
+        setEditingTx(tx);
+        setEditDate(tx.date ? new Date(tx.date).toISOString().split('T')[0] : '');
+        setEditNotes(tx.notes || '');
+        setEditDesignParty(tx.designParty || tx.party || '');
+        setEditChipLayout(tx.chipLayout || '');
+        setEditQtyOfSheet(tx.qtyOfSheet || '');
+        setEditKeyEncoding(tx.keyEncoding || '');
+        setEditStore(tx.store || '');
+    };
+
     const handleUpdateTx = async (e) => {
         e.preventDefault();
         try {
             await api.put(`/api/transactions/${editingTx._id}`, {
                 date: editDate,
-                notes: editNotes
+                notes: editNotes,
+                designParty: editDesignParty,
+                chipLayout: editChipLayout,
+                qtyOfSheet: editQtyOfSheet,
+                keyEncoding: editKeyEncoding,
+                store: editStore
             });
             setEditingTx(null);
             // Refresh history
@@ -506,6 +527,60 @@ const PartyInventory = () => {
                 </div>
             )}
 
+            {editingTx && (
+                <div className="modal-overlay" style={{zIndex: 9999}}>
+                    <div className="modal-content" style={{maxWidth: '500px'}}>
+                        <h4 className="text-xl font-bold mb-4">Edit Transaction</h4>
+                        <form onSubmit={handleUpdateTx} className="space-y-3">
+                            <div>
+                                <label className="text-xs font-bold text-slate-400">Date</label>
+                                <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="input-field py-2" />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-400">Design / Party</label>
+                                <input type="text" value={editDesignParty} onChange={e => setEditDesignParty(e.target.value)} className="input-field py-2" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400">Chip Layout</label>
+                                    <select value={editChipLayout} onChange={e => setEditChipLayout(e.target.value)} className="input-field py-2">
+                                        <option value="">-- Select --</option>
+                                        <option value="24">24</option>
+                                        <option value="10">10</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400">Qnty of Sheet</label>
+                                    <input type="number" value={editQtyOfSheet} onChange={e => setEditQtyOfSheet(e.target.value)} className="input-field py-2" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400">Key / Encoding</label>
+                                    <input type="text" value={editKeyEncoding} onChange={e => setEditKeyEncoding(e.target.value)} className="input-field py-2" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400">Store</label>
+                                    <select value={editStore} onChange={e => setEditStore(e.target.value)} className="input-field py-2">
+                                        <option value="">-- Select --</option>
+                                        <option value="Office">Office</option>
+                                        <option value="Unit">Unit</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-400">Remarks</label>
+                                <input type="text" value={editNotes} onChange={e => setEditNotes(e.target.value)} className="input-field py-2" />
+                            </div>
+                            <div className="flex gap-4 pt-4">
+                                <button type="button" onClick={() => setEditingTx(null)} className="flex-1 font-bold text-slate-400">Cancel</button>
+                                <button type="submit" className="flex-2 btn btn-primary py-3 font-bold">SAVE CHANGES</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+            
             {addAssetModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -643,7 +718,7 @@ const PartyInventory = () => {
                                 <table style={{width: '100%', borderCollapse: 'collapse', fontSize: '13px'}}>
                                     <thead>
                                         <tr style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 1}}>
-                                            {['#', 'Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Cards Qty', 'Key / Encoding', 'Store', 'Remarks', 'Type'].map(col => (
+                                            {['#', 'Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Cards Qty', 'Key / Encoding', 'Store', 'Remarks', 'Type', 'Actions'].map(col => (
                                                 <th key={col} style={{padding: '10px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap'}}>
                                                     {col}
                                                 </th>
@@ -690,6 +765,11 @@ const PartyInventory = () => {
                                                     }}>
                                                         {tx.type === 'OUT' ? 'ADD' : 'MINUS'}
                                                     </span>
+                                                </td>
+                                                <td style={{padding: '10px 14px', textAlign: 'center'}}>
+                                                    <button onClick={() => openEditTx(tx)} style={{background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px'}} title="Edit Record">
+                                                        <Edit2 size={14} />
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
