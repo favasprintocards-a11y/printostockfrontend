@@ -387,7 +387,7 @@ const PartyInventory = () => {
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Quantity</label>
+                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Layout Quantity</label>
                                     <input type="number" autoFocus value={qty} onChange={(e) => setQty(e.target.value)} className="input-field text-xl font-bold py-2.5 text-center" placeholder="0" required />
                                 </div>
                             </div>
