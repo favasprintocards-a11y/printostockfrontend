@@ -304,11 +304,11 @@ const PartyInventory = () => {
             {/* Simple Table */}
             <div className="card overflow-hidden p-0 border border-slate-200">
                 <table className="min-w-full">
-                    <thead>
+                    <thead className="bg-slate-100 border-b-2 border-slate-200">
                         <tr>
-                            <th>Stock Description</th>
-                            <th className="text-center">Party Balance</th>
-                            <th className="text-right">Actions</th>
+                            <th className="px-6 py-4 text-left text-[11px] font-black text-slate-500 uppercase tracking-widest w-1/3">Stock Description</th>
+                            <th className="px-6 py-4 text-center text-[11px] font-black text-slate-500 uppercase tracking-widest w-1/3">Party Balance</th>
+                            <th className="px-6 py-4 text-right text-[11px] font-black text-slate-500 uppercase tracking-widest w-1/3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -316,8 +316,8 @@ const PartyInventory = () => {
                             <tr><td colSpan="3" className="text-center py-12 text-slate-400">No stock found.</td></tr>
                         ) : filtered.map(product => (
                             <tr key={product._id} className="hover:bg-slate-50 transition-colors">
-                                <td className="font-bold text-slate-800">{product.name}</td>
-                                <td className="text-center py-3">
+                                <td className="px-6 py-4 font-bold text-slate-800">{product.name}</td>
+                                <td className="px-6 py-4 text-center">
                                     <div className="text-xl font-bold text-[#F26622]">
                                         {product.breakdown && product.breakdown.length > 0 
                                             ? product.breakdown.reduce((sum, b) => sum + (b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance), 0) 
@@ -334,8 +334,8 @@ const PartyInventory = () => {
                                         </div>
                                     )}
                                 </td>
-                                <td>
-                                    <div className="flex justify-end gap-2 px-4">
+                                <td className="px-6 py-4">
+                                    <div className="flex justify-end gap-2">
                                         <button onClick={() => { setSelectedProduct(product); setEditName(product.name); setEditModalOpen(true); }} className="p-2.5 text-slate-500 hover:text-slate-900 bg-slate-50 rounded-lg"><Edit2 size={16} /></button>
                                         <button onClick={() => handleDeleteProduct(product._id)} className="p-2.5 text-slate-400 hover:text-rose-600 bg-slate-50 rounded-lg"><Trash2 size={16} /></button>
                                         <button onClick={() => viewHistory(product)} className="p-2.5 text-slate-700 hover:text-slate-900 bg-slate-100 rounded-lg"><History size={16} /></button>
@@ -447,21 +447,6 @@ const PartyInventory = () => {
                                 <X size={20} />
                             </button>
                         </div>
-
-                        {/* Current Balance Display */}
-                        {selectedProduct?.breakdown && selectedProduct.breakdown.length > 0 && (
-                            <div style={{background: '#f8fafc', padding: '1rem 2rem', borderBottom: '1px solid #e2e8f0'}}>
-                                <div style={{fontSize: '10px', fontWeight: 800, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px'}}>Current Available Stock</div>
-                                <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
-                                    {selectedProduct.breakdown.map((b, i) => (
-                                        <div key={i} style={{display: 'flex', justifyContent: 'space-between', background: 'white', padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '11px', fontWeight: 700}}>
-                                            <span style={{color: '#475569'}}>{b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `Layout-${b.layout}`})</span>
-                                            <span style={{color: '#0f172a'}}>x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance} Cards</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
 
                         {/* Spreadsheet-style row label bar */}
                         <div style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr', padding: '0.5rem 0', textAlign: 'center'}}>
