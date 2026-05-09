@@ -128,14 +128,17 @@ const PartyInventory = () => {
         if (!qty || Number(qty) <= 0) return;
         setSaving(true);
         try {
+            const isAddStock = transactionType === 'OUT';
+            const finalQty = isAddStock && chipLayout ? String(Number(qty) * Number(chipLayout)) : qty;
+
             await api.post('/api/transactions', {
                 productId: selectedProduct._id,
                 type: transactionType,
-                quantity: qty,
+                quantity: finalQty,
                 party: partyName,
                 notes,
                 chipLayout: chipLayout || undefined,
-                qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : undefined,
+                qtyOfSheet: isAddStock ? qty : (transactionType === 'IN' ? qtyOfSheet : undefined),
                 keyEncoding: transactionType === 'IN' ? keyEncoding : undefined,
                 designParty: transactionType === 'IN' ? designParty : undefined,
                 store: transactionType === 'OUT' ? store : undefined,
@@ -325,7 +328,7 @@ const PartyInventory = () => {
                                         <div className="mt-2 flex flex-wrap justify-center gap-1">
                                             {product.breakdown.map((b, i) => (
                                                 <div key={i} className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                                                    {b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `L-${b.layout}`}): <span className="text-slate-800">x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance}</span>
+                                                    {b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `L-${b.layout}`}): <span className="text-slate-800">x{b.layout !== 'N/A' ? b.balance / Number(b.layout) : b.balance} = {b.balance}</span>
                                                 </div>
                                             ))}
                                         </div>
