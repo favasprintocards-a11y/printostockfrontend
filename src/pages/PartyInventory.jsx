@@ -128,17 +128,14 @@ const PartyInventory = () => {
         if (!qty || Number(qty) <= 0) return;
         setSaving(true);
         try {
-            const isAddStock = transactionType === 'OUT';
-            const finalQty = isAddStock && chipLayout ? String(Number(qty) * Number(chipLayout)) : qty;
-
             await api.post('/api/transactions', {
                 productId: selectedProduct._id,
                 type: transactionType,
-                quantity: finalQty,
+                quantity: qty,
                 party: partyName,
                 notes,
                 chipLayout: chipLayout || undefined,
-                qtyOfSheet: isAddStock ? qty : (transactionType === 'IN' ? qtyOfSheet : undefined),
+                qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : undefined,
                 keyEncoding: transactionType === 'IN' ? keyEncoding : undefined,
                 designParty: transactionType === 'IN' ? designParty : undefined,
                 store: transactionType === 'OUT' ? store : undefined,
@@ -322,13 +319,15 @@ const PartyInventory = () => {
                                 <td className="font-bold text-slate-800">{product.name}</td>
                                 <td className="text-center py-3">
                                     <div className="text-xl font-bold text-[#F26622]">
-                                        {product.partyBalance} <span className="text-[10px] text-slate-400">{product.unit || 'uds'}</span>
+                                        {product.breakdown && product.breakdown.length > 0 
+                                            ? product.breakdown.reduce((sum, b) => sum + (b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance), 0) 
+                                            : product.partyBalance} <span className="text-[10px] text-slate-400">TOTAL</span>
                                     </div>
                                     {product.breakdown && product.breakdown.length > 0 && (
                                         <div className="mt-2 flex flex-wrap justify-center gap-1">
                                             {product.breakdown.map((b, i) => (
                                                 <div key={i} className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                                                    {b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `L-${b.layout}`}): <span className="text-slate-800">x{b.layout !== 'N/A' ? b.balance / Number(b.layout) : b.balance} = {b.balance}</span>
+                                                    {b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `L-${b.layout}`}): <span className="text-slate-800">x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance}</span>
                                                 </div>
                                             ))}
                                         </div>
