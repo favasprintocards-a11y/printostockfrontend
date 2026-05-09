@@ -324,10 +324,11 @@ const PartyInventory = () => {
                                             : product.partyBalance} <span className="text-[10px] text-slate-400">TOTAL</span>
                                     </div>
                                     {product.breakdown && product.breakdown.length > 0 && (
-                                        <div className="mt-2 flex flex-wrap justify-center gap-1">
+                                        <div className="mt-2 flex flex-col items-center gap-1 w-full max-w-[220px] mx-auto">
                                             {product.breakdown.map((b, i) => (
-                                                <div key={i} className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                                                    {b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `Layout-${b.layout}`}): <span className="text-slate-800">x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance}</span>
+                                                <div key={i} className="flex justify-between w-full bg-slate-50 border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                                                    <span>{b.store} ({b.layout === 'N/A' ? 'NO LAYOUT' : `Layout-${b.layout}`})</span>
+                                                    <span className="text-slate-800 ml-3">x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance}</span>
                                                 </div>
                                             ))}
                                         </div>
