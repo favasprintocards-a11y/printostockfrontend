@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 import api from '../api';
 import { 
     Package, 
@@ -14,7 +15,9 @@ import {
     Edit2,
     Trash2,
     X,
-    Users
+    Users,
+    Download,
+    Calendar
 } from 'lucide-react';
 
 const PartyInventory = () => {
@@ -42,8 +45,35 @@ const PartyInventory = () => {
     const [editDate, setEditDate] = useState('');
     const [editNotes, setEditNotes] = useState('');
     const [saving, setSaving] = useState(false);
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
 
     const todayStr = () => new Date().toISOString().split('T')[0];
+
+    const exportToExcel = () => {
+        const rows = filteredHistory.map((tx, idx) => ({
+            '#': idx + 1,
+            'Date': new Date(tx.date).toLocaleDateString('en-GB'),
+            'Design / Party': tx.designParty || tx.party || '',
+            'Chip Layout': tx.chipLayout || '',
+            'Qnty of Sheet': tx.qtyOfSheet ?? '',
+            'Cards Qty': tx.quantity,
+            'Key / Encoding': tx.keyEncoding || '',
+            'Remarks': tx.notes || '',
+            'Type': tx.type === 'OUT' ? 'ADD' : 'MINUS'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(rows);
+        // Set column widths
+        ws['!cols'] = [8, 14, 22, 14, 16, 12, 18, 22, 10].map(w => ({ wch: w }));
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, selectedProduct?.name?.slice(0, 31) || 'History');
+
+        const fromLabel = dateFrom ? dateFrom : 'all';
+        const toLabel = dateTo ? dateTo : 'all';
+        XLSX.writeFile(wb, `${selectedProduct?.name}_${fromLabel}_to_${toLabel}.xlsx`);
+    };
 
     // Auto-calculate Cards Qty = Chip Layout × Qnty of Sheet
     useEffect(() => {
@@ -464,7 +494,37 @@ const PartyInventory = () => {
                 </div>
             )}
 
-            {historyModalOpen && (
+            {historyModalOpen && (() => {
+                const filteredHistory = history.filter(tx => {
+                    const d = new Date(tx.date);
+                    if (dateFrom && d < new Date(dateFrom)) return false;
+                    if (dateTo && d > new Date(dateTo + 'T23:59:59')) return false;
+                    return true;
+                });
+
+                // make exportToExcel use filteredHistory via closure
+                const handleExport = () => {
+                    const rows = filteredHistory.map((tx, idx) => ({
+                        '#': idx + 1,
+                        'Date': new Date(tx.date).toLocaleDateString('en-GB'),
+                        'Design / Party': tx.designParty || tx.party || '',
+                        'Chip Layout': tx.chipLayout || '',
+                        'Qnty of Sheet': tx.qtyOfSheet ?? '',
+                        'Cards Qty': tx.quantity,
+                        'Key / Encoding': tx.keyEncoding || '',
+                        'Remarks': tx.notes || '',
+                        'Type': tx.type === 'OUT' ? 'ADD' : 'MINUS'
+                    }));
+                    const ws = XLSX.utils.json_to_sheet(rows);
+                    ws['!cols'] = [8, 14, 22, 14, 16, 12, 18, 22, 10].map(w => ({ wch: w }));
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, selectedProduct?.name?.slice(0, 31) || 'History');
+                    const fromLabel = dateFrom || 'all';
+                    const toLabel = dateTo || 'all';
+                    XLSX.writeFile(wb, `${selectedProduct?.name}_${fromLabel}_to_${toLabel}.xlsx`);
+                };
+
+                return (
                 <div className="modal-overlay" style={{alignItems: 'flex-start', paddingTop: '2rem', overflowY: 'auto'}}>
                     <div style={{background: 'white', borderRadius: '1.5rem', width: '100%', maxWidth: '960px', overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.25)'}}>
                         {/* Header */}
@@ -478,14 +538,68 @@ const PartyInventory = () => {
                             </button>
                         </div>
 
+                        {/* Date Filter + Download Bar */}
+                        <div style={{padding: '1rem 2rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end'}}>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '180px'}}>
+                                <Calendar size={14} style={{color: '#94a3b8', flexShrink: 0}} />
+                                <div style={{flex: 1}}>
+                                    <div style={{fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px'}}>From</div>
+                                    <input
+                                        type="date"
+                                        value={dateFrom}
+                                        onChange={e => setDateFrom(e.target.value)}
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '12px', fontWeight: 600, outline: 'none', background: 'white', boxSizing: 'border-box'}}
+                                    />
+                                </div>
+                            </div>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '180px'}}>
+                                <Calendar size={14} style={{color: '#94a3b8', flexShrink: 0}} />
+                                <div style={{flex: 1}}>
+                                    <div style={{fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px'}}>To</div>
+                                    <input
+                                        type="date"
+                                        value={dateTo}
+                                        onChange={e => setDateTo(e.target.value)}
+                                        style={{width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '12px', fontWeight: 600, outline: 'none', background: 'white', boxSizing: 'border-box'}}
+                                    />
+                                </div>
+                            </div>
+                            {(dateFrom || dateTo) && (
+                                <button
+                                    onClick={() => { setDateFrom(''); setDateTo(''); }}
+                                    style={{padding: '6px 12px', fontSize: '11px', fontWeight: 700, background: '#f1f5f9', border: '1.5px solid #e2e8f0', borderRadius: '6px', color: '#64748b', cursor: 'pointer', alignSelf: 'flex-end'}}
+                                >
+                                    Clear
+                                </button>
+                            )}
+                            <button
+                                onClick={handleExport}
+                                disabled={filteredHistory.length === 0}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    padding: '8px 18px', fontSize: '12px', fontWeight: 800,
+                                    background: filteredHistory.length === 0 ? '#e2e8f0' : '#16a34a',
+                                    color: filteredHistory.length === 0 ? '#94a3b8' : 'white',
+                                    border: 'none', borderRadius: '8px', cursor: filteredHistory.length === 0 ? 'not-allowed' : 'pointer',
+                                    letterSpacing: '0.5px', textTransform: 'uppercase', alignSelf: 'flex-end',
+                                    boxShadow: filteredHistory.length > 0 ? '0 4px 12px rgba(22,163,74,0.25)' : 'none'
+                                }}
+                            >
+                                <Download size={14} />
+                                Download Excel
+                            </button>
+                        </div>
+
                         {/* Table */}
-                        <div style={{overflowX: 'auto', maxHeight: '70vh', overflowY: 'auto'}}>
-                            {history.length === 0 ? (
-                                <p style={{textAlign: 'center', padding: '3rem', color: '#cbd5e1', fontWeight: 700}}>No history found.</p>
+                        <div style={{overflowX: 'auto', maxHeight: '55vh', overflowY: 'auto'}}>
+                            {filteredHistory.length === 0 ? (
+                                <p style={{textAlign: 'center', padding: '3rem', color: '#cbd5e1', fontWeight: 700}}>
+                                    {history.length === 0 ? 'No history found.' : 'No records in selected date range.'}
+                                </p>
                             ) : (
                                 <table style={{width: '100%', borderCollapse: 'collapse', fontSize: '13px'}}>
                                     <thead>
-                                        <tr style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0'}}>
+                                        <tr style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 1}}>
                                             {['#', 'Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Cards Qty', 'Key / Encoding', 'Remarks', 'Type'].map(col => (
                                                 <th key={col} style={{padding: '10px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap'}}>
                                                     {col}
@@ -494,7 +608,7 @@ const PartyInventory = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {history.map((tx, idx) => (
+                                        {filteredHistory.map((tx, idx) => (
                                             <tr key={tx._id} style={{borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? 'white' : '#fafafa'}}>
                                                 <td style={{padding: '10px 14px', color: '#94a3b8', fontWeight: 700, fontSize: '11px'}}>{idx + 1}</td>
                                                 <td style={{padding: '10px 14px', fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap'}}>
@@ -538,16 +652,21 @@ const PartyInventory = () => {
                             )}
                         </div>
 
-                        {/* Footer count */}
+                        {/* Footer */}
                         <div style={{padding: '0.875rem 2rem', borderTop: '1px solid #f1f5f9', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <span style={{fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px'}}>{history.length} record{history.length !== 1 ? 's' : ''}</span>
+                            <span style={{fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px'}}>
+                                {filteredHistory.length} of {history.length} record{history.length !== 1 ? 's' : ''}
+                                {(dateFrom || dateTo) ? ' (filtered)' : ''}
+                            </span>
                             <button onClick={() => setHistoryModalOpen(false)} style={{padding: '0.5rem 1.25rem', background: '#1e293b', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: 700, fontSize: '12px', cursor: 'pointer'}}>Close</button>
                         </div>
                     </div>
                 </div>
-            )}
+                );
+            })()}
         </div>
     );
 };
 
 export default PartyInventory;
+
