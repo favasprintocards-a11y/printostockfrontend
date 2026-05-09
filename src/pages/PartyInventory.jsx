@@ -461,62 +461,83 @@ const PartyInventory = () => {
             )}
 
             {historyModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-content max-w-2xl h-[70vh] flex flex-col p-0">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                            <h3 className="text-xl font-bold uppercase tracking-tight">{selectedProduct?.name} History</h3>
-                            <button onClick={() => setHistoryModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-900"><X /></button>
+                <div className="modal-overlay" style={{alignItems: 'flex-start', paddingTop: '2rem', overflowY: 'auto'}}>
+                    <div style={{background: 'white', borderRadius: '1.5rem', width: '100%', maxWidth: '960px', overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.25)'}}>
+                        {/* Header */}
+                        <div style={{background: '#1e293b', padding: '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <div>
+                                <div style={{color: '#94a3b8', fontSize: '10px', fontWeight: 900, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '4px'}}>TRANSACTION HISTORY</div>
+                                <h3 style={{color: 'white', fontSize: '1.25rem', fontWeight: 900, margin: 0, textTransform: 'uppercase'}}>{selectedProduct?.name}</h3>
+                            </div>
+                            <button onClick={() => setHistoryModalOpen(false)} style={{background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '0.75rem', padding: '0.5rem', color: 'white', cursor: 'pointer', lineHeight: 0}}>
+                                <X size={20} />
+                            </button>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50">
-                            {history.length === 0 ? <p className="text-center py-10 text-slate-300">No logs found.</p> : history.map((tx) => (
-                                <div key={tx._id} className="bg-white p-4 rounded-lg border border-slate-100 shadow-sm space-y-3">
-                                    <div className="flex justify-between items-center">
-                                       <div className="flex items-center space-x-3">
-                                           <div className={`p-2 rounded font-bold text-[10px] ${tx.type === 'OUT' ? 'bg-orange-100 text-[#F26622]' : 'bg-lime-100 text-lime-700'}`}>{tx.type === 'OUT' ? 'ADD' : 'MINUS'}</div>
-                                           <div>
-                                               <div className="text-sm font-bold text-slate-800">{new Date(tx.date).toLocaleDateString()}</div>
-                                               <div className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Target: {tx.party || 'General'}</div>
-                                           </div>
-                                       </div>
-                                       <div className="flex items-center space-x-4">
-                                           <div className={`text-xl font-bold ${tx.type === 'OUT' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                               {tx.type === 'OUT' ? '+' : '-'}{tx.quantity}
-                                           </div>
-                                           <button 
-                                              onClick={() => { setEditingTx(tx); setEditDate(tx.date.split('T')[0]); setEditNotes(tx.notes || ''); }}
-                                              className="p-2 text-slate-300 hover:text-slate-900 transition-colors"
-                                           >
-                                              <Edit2 size={14} />
-                                           </button>
-                                       </div>
-                                    </div>
-                                    
-                                    {editingTx?._id === tx._id ? (
-                                        <form onSubmit={handleUpdateTx} className="p-4 bg-slate-900 rounded-xl space-y-4 animate-in slide-in-from-top-2">
-                                           <div className="grid grid-cols-2 gap-3">
-                                               <div className="space-y-1">
-                                                   <label className="text-[9px] font-black text-slate-500 uppercase">Edit Date</label>
-                                                   <input type="date" value={editDate} onChange={(e) => setEditDate(e.target.value)} className="w-full bg-white/10 border-none text-white text-xs p-2 rounded" />
-                                               </div>
-                                               <div className="space-y-1">
-                                                   <label className="text-[9px] font-black text-slate-500 uppercase">Edit Notes</label>
-                                                   <input type="text" value={editNotes} onChange={(e) => setEditNotes(e.target.value)} className="w-full bg-white/10 border-none text-white text-xs p-2 rounded" placeholder="Customer name..." />
-                                               </div>
-                                           </div>
-                                           <div className="flex gap-2">
-                                               <button type="button" onClick={() => setEditingTx(null)} className="flex-1 text-[10px] text-slate-400 font-bold">CANCEL</button>
-                                               <button type="submit" className="flex-1 text-[10px] bg-white text-slate-900 py-2 rounded font-black">SAVE CHANGE</button>
-                                           </div>
-                                        </form>
-                                    ) : (
-                                        tx.notes && (
-                                            <div className="text-[11px] font-medium text-slate-500 border-t border-slate-50 pt-2 flex items-center">
-                                                <Users size={12} className="mr-2 opacity-30" /> REF: {tx.notes}
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                            ))}
+
+                        {/* Table */}
+                        <div style={{overflowX: 'auto', maxHeight: '70vh', overflowY: 'auto'}}>
+                            {history.length === 0 ? (
+                                <p style={{textAlign: 'center', padding: '3rem', color: '#cbd5e1', fontWeight: 700}}>No history found.</p>
+                            ) : (
+                                <table style={{width: '100%', borderCollapse: 'collapse', fontSize: '13px'}}>
+                                    <thead>
+                                        <tr style={{background: '#f8fafc', borderBottom: '2px solid #e2e8f0'}}>
+                                            {['#', 'Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Cards Qty', 'Key / Encoding', 'Remarks', 'Type'].map(col => (
+                                                <th key={col} style={{padding: '10px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap'}}>
+                                                    {col}
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {history.map((tx, idx) => (
+                                            <tr key={tx._id} style={{borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? 'white' : '#fafafa'}}>
+                                                <td style={{padding: '10px 14px', color: '#94a3b8', fontWeight: 700, fontSize: '11px'}}>{idx + 1}</td>
+                                                <td style={{padding: '10px 14px', fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap'}}>
+                                                    {new Date(tx.date).toLocaleDateString('en-GB')}
+                                                </td>
+                                                <td style={{padding: '10px 14px', fontWeight: 600, color: '#475569'}}>
+                                                    {tx.party || '—'}
+                                                </td>
+                                                <td style={{padding: '10px 14px', fontWeight: 700, color: '#1e293b', textAlign: 'center'}}>
+                                                    {tx.chipLayout || '—'}
+                                                </td>
+                                                <td style={{padding: '10px 14px', fontWeight: 700, color: '#1e293b', textAlign: 'center'}}>
+                                                    {tx.qtyOfSheet ?? '—'}
+                                                </td>
+                                                <td style={{padding: '10px 14px', fontWeight: 900, color: tx.type === 'IN' ? '#F26622' : '#16a34a', fontSize: '15px', textAlign: 'center'}}>
+                                                    {tx.quantity}
+                                                </td>
+                                                <td style={{padding: '10px 14px', fontWeight: 600, color: '#475569'}}>
+                                                    {tx.keyEncoding || '—'}
+                                                </td>
+                                                <td style={{padding: '10px 14px', fontWeight: 600, color: '#64748b', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                                                    {tx.notes || '—'}
+                                                </td>
+                                                <td style={{padding: '10px 14px'}}>
+                                                    <span style={{
+                                                        padding: '3px 10px',
+                                                        borderRadius: '999px',
+                                                        fontSize: '10px',
+                                                        fontWeight: 900,
+                                                        textTransform: 'uppercase',
+                                                        background: tx.type === 'OUT' ? '#fff7ed' : '#fef2f2',
+                                                        color: tx.type === 'OUT' ? '#F26622' : '#ef4444'
+                                                    }}>
+                                                        {tx.type === 'OUT' ? 'ADD' : 'MINUS'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+
+                        {/* Footer count */}
+                        <div style={{padding: '0.875rem 2rem', borderTop: '1px solid #f1f5f9', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <span style={{fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px'}}>{history.length} record{history.length !== 1 ? 's' : ''}</span>
+                            <button onClick={() => setHistoryModalOpen(false)} style={{padding: '0.5rem 1.25rem', background: '#1e293b', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: 700, fontSize: '12px', cursor: 'pointer'}}>Close</button>
                         </div>
                     </div>
                 </div>
