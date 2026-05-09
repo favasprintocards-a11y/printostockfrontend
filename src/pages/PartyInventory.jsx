@@ -387,14 +387,8 @@ const PartyInventory = () => {
                             {/* Divider */}
                             <div style={{height: '1px', background: '#e2e8f0', margin: '1rem 0'}} />
 
-                            {/* Row 2: Chip Stock IN | Cards Qty | Remaining Chip | Remarks */}
-                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem'}}>
-                                <div>
-                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Chip Stock IN</label>
-                                    <div style={{border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '14px', fontWeight: 900, background: '#f8fafc', color: '#1e293b', textAlign: 'center'}}>
-                                        {selectedProduct?.partyBalance ?? selectedProduct?.totalStock ?? '—'}
-                                    </div>
-                                </div>
+                            {/* Row 2: Cards Qty | Remarks */}
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem'}}>
                                 <div>
                                     <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#F26622', marginBottom: '4px', textTransform: 'uppercase'}}>Cards Qty ↓</label>
                                     <input
@@ -406,12 +400,6 @@ const PartyInventory = () => {
                                         required
                                         style={{width: '100%', border: '2px solid #F26622', borderRadius: '8px', padding: '8px 6px', fontSize: '18px', fontWeight: 900, outline: 'none', textAlign: 'center', color: '#F26622', boxSizing: 'border-box'}}
                                     />
-                                </div>
-                                <div>
-                                    <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Remaining Chip</label>
-                                    <div style={{border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '14px', fontWeight: 900, background: '#f0fdf4', color: '#16a34a', textAlign: 'center'}}>
-                                        {(selectedProduct?.partyBalance ?? selectedProduct?.totalStock ?? 0) - (Number(qty) || 0)}
-                                    </div>
                                 </div>
                                 <div>
                                     <label style={{display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase'}}>Remarks</label>
