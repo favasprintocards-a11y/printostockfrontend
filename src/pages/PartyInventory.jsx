@@ -127,7 +127,7 @@ const PartyInventory = () => {
                 quantity: qty,
                 party: partyName,
                 notes,
-                chipLayout: transactionType === 'IN' ? chipLayout : undefined,
+                chipLayout: chipLayout || undefined,
                 qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : undefined,
                 keyEncoding: transactionType === 'IN' ? keyEncoding : undefined,
                 designParty: transactionType === 'IN' ? designParty : undefined,
@@ -357,13 +357,23 @@ const PartyInventory = () => {
                                     <input type="number" autoFocus value={qty} onChange={(e) => setQty(e.target.value)} className="input-field text-xl font-bold py-2.5 text-center" placeholder="0" required />
                                 </div>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Store</label>
-                                <select value={store} onChange={e => setStore(e.target.value)} className="input-field py-2.5">
-                                    <option value="">-- Select Store --</option>
-                                    <option value="Office">Office</option>
-                                    <option value="Unit">Unit</option>
-                                </select>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Chip Layout</label>
+                                    <select value={chipLayout} onChange={e => setChipLayout(e.target.value)} className="input-field py-2.5">
+                                        <option value="">-- Select --</option>
+                                        <option value="24">24</option>
+                                        <option value="10">10</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Store</label>
+                                    <select value={store} onChange={e => setStore(e.target.value)} className="input-field py-2.5">
+                                        <option value="">-- Select Store --</option>
+                                        <option value="Office">Office</option>
+                                        <option value="Unit">Unit</option>
+                                    </select>
+                                </div>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Notes</label>
