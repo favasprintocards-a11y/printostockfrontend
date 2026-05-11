@@ -637,8 +637,8 @@ const PartyInventory = () => {
                                     <select value={editChipLayout} onChange={e => {
                                         const val = e.target.value;
                                         setEditChipLayout(val);
-                                        if (val === '10') setEditStore('Unit');
-                                        else if (val === '24') setEditStore('Office');
+                                        if (val === '24') setEditStore('Unit');
+                                        else if (val === '10') setEditStore('Office');
                                     }} className="input-field py-2">
                                         <option value="">-- Select --</option>
                                         <option value="24">24</option>
@@ -660,7 +660,7 @@ const PartyInventory = () => {
                                     <label className="text-xs font-bold text-slate-400">Store</label>
                                     {editChipLayout === '10' || editChipLayout === '24' ? (
                                         <div className="input-field py-2 bg-slate-100 text-slate-500 font-bold border-slate-200 cursor-not-allowed flex items-center">
-                                            {editChipLayout === '10' ? 'Unit' : 'Office'}
+                                            {editChipLayout === '24' ? 'Unit' : 'Office'}
                                         </div>
                                     ) : (
                                         <select value={editStore} onChange={e => setEditStore(e.target.value)} className="input-field py-2">
@@ -750,7 +750,7 @@ const PartyInventory = () => {
                         for (let i = 0; i < idx; i++) {
                             const t = filteredHistory[i];
                             const tQty = t.quantity;
-                            const tStore = (t.store || (t.chipLayout === '10' ? 'Unit' : (t.chipLayout === '24' ? 'Office' : ''))).toLowerCase();
+                            const tStore = (t.store || (t.chipLayout === '24' ? 'Unit' : (t.chipLayout === '10' ? 'Office' : ''))).toLowerCase();
 
                             if (t.type === 'OUT') { // ADD
                                 rowTotal -= tQty;
