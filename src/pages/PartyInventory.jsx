@@ -330,8 +330,8 @@ const PartyInventory = () => {
                         {filtered.length === 0 ? (
                             <tr><td colSpan="5" className="text-center py-12 text-slate-400">No stock found.</td></tr>
                         ) : filtered.map(product => {
-                            const unitBreakdown = product.breakdown ? product.breakdown.filter(b => b.layout === '24') : [];
-                            const officeBreakdown = product.breakdown ? product.breakdown.filter(b => b.layout === '10') : [];
+                            const unitBreakdown = product.breakdown ? product.breakdown.filter(b => b.layout === '24' && b.balance > 0) : [];
+                            const officeBreakdown = product.breakdown ? product.breakdown.filter(b => b.layout === '10' && b.balance > 0) : [];
 
                             return (
                                 <tr key={product._id} className="hover:bg-slate-50 transition-colors">
@@ -822,7 +822,7 @@ const PartyInventory = () => {
                                             <div style={{ fontSize: '18px', fontWeight: 900, color: '#16a34a' }}>{totalUnit.toLocaleString()} <span style={{ fontSize: '10px', color: '#94a3b8' }}>CARDS</span></div>
                                         </div>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                            {(selectedProduct?.breakdown || []).filter(b => b.store?.toLowerCase() === 'unit').map((b, i) => (
+                                            {(selectedProduct?.breakdown || []).filter(b => b.store?.toLowerCase() === 'unit' && b.balance > 0).map((b, i) => (
                                                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', background: 'white', padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #f1f5f9', fontSize: '13px', fontWeight: 700 }}>
                                                     <span style={{ color: '#64748b' }}>Layout-{b.layout} x {b.balance}</span>
                                                     <span style={{ color: '#1e293b' }}>= {(b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance).toLocaleString()}</span>
@@ -841,7 +841,7 @@ const PartyInventory = () => {
                                             <div style={{ fontSize: '18px', fontWeight: 900, color: '#16a34a' }}>{totalOffice.toLocaleString()} <span style={{ fontSize: '10px', color: '#94a3b8' }}>CARDS</span></div>
                                         </div>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                            {(selectedProduct?.breakdown || []).filter(b => b.store?.toLowerCase() === 'office').map((b, i) => (
+                                            {(selectedProduct?.breakdown || []).filter(b => b.store?.toLowerCase() === 'office' && b.balance > 0).map((b, i) => (
                                                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', background: 'white', padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #f1f5f9', fontSize: '13px', fontWeight: 700 }}>
                                                     <span style={{ color: '#64748b' }}>Layout-{b.layout} x {b.balance}</span>
                                                     <span style={{ color: '#1e293b' }}>= {(b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance).toLocaleString()}</span>
