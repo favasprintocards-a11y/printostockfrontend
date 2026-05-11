@@ -93,12 +93,16 @@ const PartyInventory = () => {
 
     // Auto-calculate Cards Qty = Chip Layout × Qnty of Sheet
     useEffect(() => {
-        if (qtyOfSheet && chipLayout) {
-            setQty(Number(qtyOfSheet) * Number(chipLayout));
+        if (transactionType !== 'IN') return; // Only auto-calculate for MINUS STOCK
+
+        const layout = Number(chipLayout);
+        const sheets = Number(qtyOfSheet);
+        if (layout > 0 && sheets > 0) {
+            setQty(String(layout * sheets));
         } else {
             setQty('');
         }
-    }, [chipLayout, qtyOfSheet]);
+    }, [chipLayout, qtyOfSheet, transactionType]);
 
     const fetchPartyStock = async () => {
         try {
@@ -134,21 +138,18 @@ const PartyInventory = () => {
         if (!qty || Number(qty) <= 0) return;
         setSaving(true);
         try {
-            // Calculate total cards: Sheets * Layout
-            const totalCards = Number(qtyOfSheet) * Number(chipLayout);
-            
             await api.post('/api/transactions', {
                 productId: selectedProduct._id,
                 type: transactionType,
-                quantity: totalCards,
+                quantity: transactionType === 'IN' ? qtyOfSheet : qty,
                 party: partyName,
                 notes,
-                chipLayout,
-                qtyOfSheet: Number(qtyOfSheet),
-                keyEncoding,
-                designParty,
-                store,
-                date: txDate
+                chipLayout: chipLayout || undefined,
+                qtyOfSheet: transactionType === 'IN' ? qtyOfSheet : qty,
+                keyEncoding: transactionType === 'IN' ? keyEncoding : undefined,
+                designParty: transactionType === 'IN' ? designParty : undefined,
+                store: store || undefined,
+                date: txDate || undefined
             });
             setModalOpen(false);
             fetchPartyStock();
@@ -764,11 +765,8 @@ const PartyInventory = () => {
                     const fullHistory = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
                     let runningBal = 0;
                     const historyWithBal = fullHistory.map(tx => {
-                        const totalCards = (tx.chipLayout && tx.qtyOfSheet) 
-                            ? (Number(tx.chipLayout) * Number(tx.qtyOfSheet)) 
-                            : (tx.quantity || 0);
-                        if (tx.type === 'OUT') runningBal += totalCards;
-                        else runningBal -= totalCards;
+                        if (tx.type === 'OUT') runningBal += tx.quantity;
+                        else runningBal -= tx.quantity;
                         return { ...tx, runningBalance: runningBal };
                     });
 
@@ -784,22 +782,17 @@ const PartyInventory = () => {
                         })
                         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                    const rows = exportData.map(tx => {
-                        const totalIn = tx.type === 'OUT' ? ((tx.chipLayout && tx.qtyOfSheet) ? (Number(tx.chipLayout) * Number(tx.qtyOfSheet)) : tx.quantity) : 0;
-                        const totalOut = tx.type === 'IN' ? ((tx.chipLayout && tx.qtyOfSheet) ? (Number(tx.chipLayout) * Number(tx.qtyOfSheet)) : tx.quantity) : 0;
-
-                        return {
-                            'Date': new Date(tx.date).toLocaleDateString('en-GB'),
-                            'Design / Party': tx.designParty || tx.party || '',
-                            'Chip Layout': tx.chipLayout || '',
-                            'Qnty of Sheet': tx.qtyOfSheet || '',
-                            'Chip Stock IN': totalIn || '',
-                            'Chip Stock OUT': totalOut || '',
-                            'Remaining Chip': tx.runningBalance,
-                            'Key / Encoding': tx.keyEncoding || '',
-                            'Remarks': tx.notes || ''
-                        };
-                    });
+                    const rows = exportData.map(tx => ({
+                        'Date': new Date(tx.date).toLocaleDateString('en-GB'),
+                        'Design / Party': tx.designParty || tx.party || '',
+                        'Chip Layout': tx.chipLayout || '',
+                        'Qnty of Sheet': tx.qtyOfSheet || '',
+                        'Chip Stock IN': tx.type === 'OUT' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${tx.quantity || 0}` : '',
+                        'Chip Stock OUT': tx.type === 'IN' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${tx.quantity || 0}` : '',
+                        'Remaining Chip': tx.runningBalance,
+                        'Key / Encoding': tx.keyEncoding || '',
+                        'Remarks': tx.notes || ''
+                    }));
 
                     rows.push({});
                     rows.push({ 'Date': 'SUMMARY OF CURRENT STOCK' });
@@ -873,11 +866,8 @@ const PartyInventory = () => {
                                             const sortedChron = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
                                             let currentRunningBal = 0;
                                             const withBal = sortedChron.map(tx => {
-                                                const totalCards = (tx.chipLayout && tx.qtyOfSheet) 
-                                                    ? (Number(tx.chipLayout) * Number(tx.qtyOfSheet)) 
-                                                    : (tx.quantity || 0);
-                                                if (tx.type === 'OUT') currentRunningBal += totalCards;
-                                                else currentRunningBal -= totalCards;
+                                                if (tx.type === 'OUT') currentRunningBal += tx.quantity;
+                                                else currentRunningBal -= tx.quantity;
                                                 return { ...tx, runningBalance: currentRunningBal };
                                             });
 
@@ -899,10 +889,10 @@ const PartyInventory = () => {
                                                         <td style={{ padding: '10px 14px', fontWeight: 700, textAlign: 'center' }}>{tx.chipLayout}</td>
                                                         <td style={{ padding: '10px 14px', textAlign: 'center' }}>{tx.qtyOfSheet}</td>
                                                         <td style={{ padding: '10px 14px', fontWeight: 900, color: '#F26622', textAlign: 'center', background: tx.type === 'OUT' ? '#fff7ed' : 'transparent' }}>
-                                                            {tx.type === 'OUT' ? ((tx.chipLayout && tx.qtyOfSheet) ? (Number(tx.chipLayout) * Number(tx.qtyOfSheet)) : tx.quantity).toLocaleString() : '—'}
+                                                            {tx.type === 'OUT' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${tx.quantity}` : '—'}
                                                         </td>
                                                         <td style={{ padding: '10px 14px', fontWeight: 900, color: '#16a34a', textAlign: 'center', background: tx.type === 'IN' ? '#f0fdf4' : 'transparent' }}>
-                                                            {tx.type === 'IN' ? ((tx.chipLayout && tx.qtyOfSheet) ? (Number(tx.chipLayout) * Number(tx.qtyOfSheet)) : tx.quantity).toLocaleString() : '—'}
+                                                            {tx.type === 'IN' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${tx.quantity}` : '—'}
                                                         </td>
                                                         <td style={{ padding: '10px 14px', fontWeight: 900, background: '#f8fafc', textAlign: 'center', fontSize: '14px' }}>
                                                             {tx.runningBalance.toLocaleString()}
