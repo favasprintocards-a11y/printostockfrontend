@@ -773,6 +773,9 @@ const PartyInventory = () => {
                             'Unit Balance': rowUnit,
                             'Office Balance': rowOffice,
                             'Total Balance': rowTotal,
+                            'Unit Sheets': rowUnit / 24,
+                            'Office Sheets': rowOffice / 10,
+                            'Total Sheets': (rowUnit / 24) + (rowOffice / 10),
                             'Key / Encoding': tx.keyEncoding || '',
                             'Store': tx.store || (tx.chipLayout === '24' ? 'Unit' : (tx.chipLayout === '10' ? 'Office' : '')),
                             'Remarks': tx.notes || '',
@@ -787,7 +790,7 @@ const PartyInventory = () => {
                     rows.push({ 'Date': 'TOTAL BALANCE', 'Design / Party': totalBalance || 0 });
 
                     const ws = XLSX.utils.json_to_sheet(rows);
-                    ws['!cols'] = [8, 14, 22, 14, 16, 12, 15, 15, 15, 18, 18, 22, 10].map(w => ({ wch: w }));
+                    ws['!cols'] = [8, 14, 22, 14, 16, 12, 15, 15, 15, 12, 12, 12, 18, 18, 22, 10].map(w => ({ wch: w }));
                     const wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, selectedProduct?.name?.slice(0, 31) || 'History');
                     const fromLabel = dateFrom || 'all';
