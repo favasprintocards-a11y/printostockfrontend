@@ -371,7 +371,7 @@ const PartyInventory = () => {
                                         <div className="flex justify-end gap-2 px-4">
                                             <button onClick={() => { setSelectedProduct(product); setEditName(product.name); setEditModalOpen(true); }} className="p-2.5 text-slate-500 hover:text-slate-900 bg-slate-50 rounded-lg"><Edit2 size={16} /></button>
                                             <button onClick={() => handleDeleteProduct(product._id)} className="p-2.5 text-slate-400 hover:text-rose-600 bg-slate-50 rounded-lg"><Trash2 size={16} /></button>
-                                            <button onClick={() => viewHistory(product)} className="p-2.5 text-slate-700 hover:text-slate-900 bg-slate-100 rounded-lg"><History size={16} /></button>
+                                            <button onClick={() => viewHistory(product)} className="p-2.5 text-slate-700 hover:text-slate-900 bg-slate-100 rounded-lg" title="View Balance"><Package size={16} /></button>
                                             <div className="w-[1px] h-6 bg-slate-200 mx-1 self-center"></div>
                                             <button onClick={() => openModal(product, 'OUT')} className="btn btn-outline text-xs px-4 font-bold">ADD STOCK</button>
                                             <button onClick={() => openModal(product, 'IN')} className="btn btn-secondary text-xs px-4 font-bold">MINUS STOCK</button>
@@ -798,191 +798,72 @@ const PartyInventory = () => {
                     XLSX.writeFile(wb, `${selectedProduct?.name}_${fromLabel}_to_${toLabel}.xlsx`);
                 };
 
-                return (
-                    <div className="modal-overlay" style={{ alignItems: 'flex-start', paddingTop: '2rem', overflowY: 'auto' }}>
-                        <div style={{ background: 'white', borderRadius: '1.5rem', width: '100%', maxWidth: '960px', overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.25)' }}>
+                            return (
+                    <div className="modal-overlay" style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ background: 'white', borderRadius: '1.5rem', width: '100%', maxWidth: '500px', overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.25)' }}>
                             {/* Header */}
-                            <div style={{ background: '#1e293b', padding: '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                            <div style={{ background: '#1e293b', padding: '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <div style={{ color: '#94a3b8', fontSize: '10px', fontWeight: 900, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '4px' }}>TRANSACTION HISTORY v2</div>
+                                    <div style={{ color: '#94a3b8', fontSize: '10px', fontWeight: 900, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '4px' }}>STOCK STATUS</div>
                                     <h3 style={{ color: 'white', fontSize: '1.25rem', fontWeight: 900, margin: 0, textTransform: 'uppercase' }}>{selectedProduct?.name}</h3>
                                 </div>
-                                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '2px' }}>Unit Balance</div>
-                                        <div style={{ color: '#CBDB3A', fontWeight: 900, fontSize: '1.1rem' }}>{totalUnit}</div>
-                                    </div>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '2px' }}>Office Balance</div>
-                                        <div style={{ color: '#CBDB3A', fontWeight: 900, fontSize: '1.1rem' }}>{totalOffice}</div>
-                                    </div>
-                                    <div style={{ textAlign: 'right', background: 'rgba(242,102,34,0.1)', padding: '0.4rem 0.8rem', borderRadius: '0.75rem', border: '1px solid rgba(242,102,34,0.2)' }}>
-                                        <div style={{ fontSize: '9px', fontWeight: 800, color: '#F26622', textTransform: 'uppercase', marginBottom: '2px' }}>Total Balance</div>
-                                        <div style={{ color: '#F26622', fontWeight: 900, fontSize: '1.1rem' }}>{totalBalance}</div>
-                                    </div>
-                                    <button onClick={() => setHistoryModalOpen(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '0.75rem', padding: '0.5rem', color: 'white', cursor: 'pointer', lineHeight: 0, marginLeft: '0.5rem' }}>
-                                        <X size={20} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Date Filter + Download Bar */}
-                            <div style={{ padding: '1rem 2rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '180px' }}>
-                                    <Calendar size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>From</div>
-                                        <input
-                                            type="date"
-                                            value={dateFrom}
-                                            onChange={e => setDateFrom(e.target.value)}
-                                            style={{ width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '12px', fontWeight: 600, outline: 'none', background: 'white', boxSizing: 'border-box' }}
-                                        />
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '180px' }}>
-                                    <Calendar size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>To</div>
-                                        <input
-                                            type="date"
-                                            value={dateTo}
-                                            onChange={e => setDateTo(e.target.value)}
-                                            style={{ width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '12px', fontWeight: 600, outline: 'none', background: 'white', boxSizing: 'border-box' }}
-                                        />
-                                    </div>
-                                </div>
-                                {(dateFrom || dateTo) && (
-                                    <button
-                                        onClick={() => { setDateFrom(''); setDateTo(''); }}
-                                        style={{ padding: '6px 12px', fontSize: '11px', fontWeight: 700, background: '#f1f5f9', border: '1.5px solid #e2e8f0', borderRadius: '6px', color: '#64748b', cursor: 'pointer', alignSelf: 'flex-end' }}
-                                    >
-                                        Clear
-                                    </button>
-                                )}
-                                <button
-                                    onClick={handleExport}
-                                    disabled={filteredHistory.length === 0}
-                                    style={{
-                                        display: 'flex', alignItems: 'center', gap: '6px',
-                                        padding: '8px 18px', fontSize: '12px', fontWeight: 800,
-                                        background: filteredHistory.length === 0 ? '#e2e8f0' : '#16a34a',
-                                        color: filteredHistory.length === 0 ? '#94a3b8' : 'white',
-                                        border: 'none', borderRadius: '8px', cursor: filteredHistory.length === 0 ? 'not-allowed' : 'pointer',
-                                        letterSpacing: '0.5px', textTransform: 'uppercase', alignSelf: 'flex-end',
-                                        boxShadow: filteredHistory.length > 0 ? '0 4px 12px rgba(22,163,74,0.25)' : 'none'
-                                    }}
-                                >
-                                    <Download size={14} />
-                                    Download Excel
+                                <button onClick={() => setHistoryModalOpen(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '0.75rem', padding: '0.5rem', color: 'white', cursor: 'pointer', lineHeight: 0 }}>
+                                    <X size={20} />
                                 </button>
                             </div>
 
-                            {/* Table */}
-                            <div style={{ overflowX: 'auto', maxHeight: '55vh', overflowY: 'auto' }}>
-                                {filteredHistory.length === 0 ? (
-                                    <p style={{ textAlign: 'center', padding: '3rem', color: '#cbd5e1', fontWeight: 700 }}>
-                                        {history.length === 0 ? 'No history found.' : 'No records in selected date range.'}
-                                    </p>
-                                ) : (
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                                        <thead>
-                                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 1 }}>
-                                                {['#', 'Date', 'Design / Party', 'Chip Layout', 'Qnty of Sheet', 'Cards Qty', 'Unit Balance', 'Office Balance', 'Total Balance', 'Key / Encoding', 'Store', 'Remarks', 'Type', 'Actions'].map(col => (
-                                                    <th key={col} style={{ padding: '10px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap' }}>
-                                                        {col}
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filteredHistory.map((tx, idx) => (
-                                                <tr key={tx._id} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? 'white' : '#fafafa' }}>
-                                                    <td style={{ padding: '10px 14px', color: '#94a3b8', fontWeight: 700, fontSize: '11px' }}>{idx + 1}</td>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap' }}>
-                                                        {new Date(tx.date).toLocaleDateString('en-GB')}
-                                                    </td>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 600, color: '#475569' }}>
-                                                        {tx.designParty || tx.party || '—'}
-                                                    </td>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 700, color: '#1e293b', textAlign: 'center' }}>
-                                                        {tx.chipLayout || '—'}
-                                                    </td>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 700, color: '#1e293b', textAlign: 'center' }}>
-                                                        {tx.qtyOfSheet ?? tx.quantity ?? '—'}
-                                                    </td>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 900, color: tx.type === 'IN' ? '#F26622' : '#16a34a', fontSize: '15px', textAlign: 'center' }}>
-                                                        {tx.chipLayout ? (Number(tx.quantity) * Number(tx.chipLayout)) : tx.quantity}
-                                                    </td>
-                                                    {(() => {
-                                                        let rowTotal = totalBalance;
-                                                        let rowUnit = totalUnit;
-                                                        let rowOffice = totalOffice;
-
-                                                        for (let i = 0; i < idx; i++) {
-                                                            const t = filteredHistory[i];
-                                                            const tQty = t.quantity;
-                                                            const tStore = (t.store || (t.chipLayout === '24' ? 'Unit' : (t.chipLayout === '10' ? 'Office' : ''))).toLowerCase();
-
-                                                            if (t.type === 'OUT') { // ADD
-                                                                rowTotal -= tQty;
-                                                                if (tStore === 'unit') rowUnit -= tQty;
-                                                                if (tStore === 'office') rowOffice -= tQty;
-                                                            } else { // MINUS
-                                                                rowTotal += tQty;
-                                                                if (tStore === 'unit') rowUnit += tQty;
-                                                                if (tStore === 'office') rowOffice += tQty;
-                                                            }
-                                                        }
-                                                        return (
-                                                            <>
-                                                                <td style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', fontSize: '12px', background: '#f0fdf4', minWidth: '100px' }}>{rowUnit.toLocaleString()}</td>
-                                                                <td style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', fontSize: '12px', background: '#f0fdf4', minWidth: '100px' }}>{rowOffice.toLocaleString()}</td>
-                                                                <td style={{ padding: '10px 14px', fontWeight: 900, color: '#16a34a', fontSize: '14px', background: '#dcfce7', minWidth: '120px' }}>{rowTotal.toLocaleString()}</td>
-                                                            </>
-                                                        );
-                                                    })()}
-                                                    <td style={{ padding: '10px 14px', fontWeight: 600, color: '#475569' }}>
-                                                        {tx.keyEncoding || '—'}
-                                                    </td>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 600, color: '#475569' }}>
-                                                        {tx.store || (tx.chipLayout === '24' ? 'Unit' : (tx.chipLayout === '10' ? 'Office' : '—'))}
-                                                    </td>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 600, color: '#64748b', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                        {tx.notes || '—'}
-                                                    </td>
-                                                    <td style={{ padding: '10px 14px' }}>
-                                                        <span style={{
-                                                            padding: '3px 10px',
-                                                            borderRadius: '999px',
-                                                            fontSize: '10px',
-                                                            fontWeight: 900,
-                                                            textTransform: 'uppercase',
-                                                            background: tx.type === 'OUT' ? '#fff7ed' : '#fef2f2',
-                                                            color: tx.type === 'OUT' ? '#F26622' : '#ef4444'
-                                                        }}>
-                                                            {tx.type === 'OUT' ? 'ADD' : 'MINUS'}
-                                                        </span>
-                                                    </td>
-                                                    <td style={{ padding: '10px 14px', textAlign: 'center' }}>
-                                                        <button onClick={() => openEditTx(tx)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px' }} title="Edit Record">
-                                                            <Edit2 size={14} />
-                                                        </button>
-                                                    </td>
-                                                </tr>
+                            {/* Breakdown View */}
+                            <div style={{ padding: '2rem' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    {/* Unit Store */}
+                                    <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                            <div style={{ fontSize: '11px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>UNIT STORE</div>
+                                            <div style={{ fontSize: '18px', fontWeight: 900, color: '#16a34a' }}>{totalUnit.toLocaleString()} <span style={{ fontSize: '10px', color: '#94a3b8' }}>CARDS</span></div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                            {(selectedProduct?.breakdown || []).filter(b => b.store?.toLowerCase() === 'unit').map((b, i) => (
+                                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', background: 'white', padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #f1f5f9', fontSize: '13px', fontWeight: 700 }}>
+                                                    <span style={{ color: '#64748b' }}>Layout-{b.layout} x {b.balance}</span>
+                                                    <span style={{ color: '#1e293b' }}>= {(b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance).toLocaleString()}</span>
+                                                </div>
                                             ))}
-                                        </tbody>
-                                    </table>
-                                )}
+                                            {(selectedProduct?.breakdown || []).filter(b => b.store?.toLowerCase() === 'unit').length === 0 && (
+                                                <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: '12px', padding: '1rem' }}>No stock in Unit</div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Office Store */}
+                                    <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                            <div style={{ fontSize: '11px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>OFFICE STORE</div>
+                                            <div style={{ fontSize: '18px', fontWeight: 900, color: '#16a34a' }}>{totalOffice.toLocaleString()} <span style={{ fontSize: '10px', color: '#94a3b8' }}>CARDS</span></div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                            {(selectedProduct?.breakdown || []).filter(b => b.store?.toLowerCase() === 'office').map((b, i) => (
+                                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', background: 'white', padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #f1f5f9', fontSize: '13px', fontWeight: 700 }}>
+                                                    <span style={{ color: '#64748b' }}>Layout-{b.layout} x {b.balance}</span>
+                                                    <span style={{ color: '#1e293b' }}>= {(b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance).toLocaleString()}</span>
+                                                </div>
+                                            ))}
+                                            {(selectedProduct?.breakdown || []).filter(b => b.store?.toLowerCase() === 'office').length === 0 && (
+                                                <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: '12px', padding: '1rem' }}>No stock in Office</div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Overall Total */}
+                                    <div style={{ background: '#fff7ed', padding: '1.25rem', borderRadius: '1rem', border: '1.5px solid #ffedd5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ fontSize: '12px', fontWeight: 900, color: '#9a3412', textTransform: 'uppercase', letterSpacing: '1px' }}>TOTAL BALANCE</div>
+                                        <div style={{ fontSize: '24px', fontWeight: 900, color: '#F26622' }}>{totalBalance.toLocaleString()} <span style={{ fontSize: '12px', color: '#c2410c' }}>CARDS</span></div>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Footer */}
-                            <div style={{ padding: '0.875rem 2rem', borderTop: '1px solid #f1f5f9', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                    {filteredHistory.length} of {history.length} record{history.length !== 1 ? 's' : ''}
-                                    {(dateFrom || dateTo) ? ' (filtered)' : ''}
-                                </span>
-                                <button onClick={() => setHistoryModalOpen(false)} style={{ padding: '0.5rem 1.25rem', background: '#1e293b', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Close</button>
+                            <div style={{ padding: '1.5rem 2rem', background: '#f8fafc', borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
+                                <button onClick={() => setHistoryModalOpen(false)} style={{ width: '100%', padding: '0.875rem', background: '#1e293b', color: 'white', border: 'none', borderRadius: '0.75rem', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>Close Status</button>
                             </div>
                         </div>
                     </div>
