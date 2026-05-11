@@ -742,44 +742,23 @@ const PartyInventory = () => {
                 const handleExport = () => {
 
                     const rows = filteredHistory.map((tx, idx) => {
-                        // Work backwards from current totals to find state at this row
-                        let rowTotal = totalBalance;
-                        let rowUnit = totalUnit;
-                        let rowOffice = totalOffice;
-
+                        let rowBalance = totalBalance;
                         for (let i = 0; i < idx; i++) {
                             const t = filteredHistory[i];
-                            const tQty = t.quantity;
-                            const tStore = (t.store || (t.chipLayout === '10' ? 'Unit' : (t.chipLayout === '24' ? 'Office' : ''))).toLowerCase();
-
-                            if (t.type === 'OUT') { // ADD
-                                rowTotal -= tQty;
-                                if (tStore === 'unit') rowUnit -= tQty;
-                                if (tStore === 'office') rowOffice -= tQty;
-                            } else { // MINUS
-                                rowTotal += tQty;
-                                if (tStore === 'unit') rowUnit += tQty;
-                                if (tStore === 'office') rowOffice += tQty;
-                            }
+                            if (t.type === 'OUT') rowBalance -= t.quantity;
+                            else rowBalance += t.quantity;
                         }
 
                         return {
-                            '#': idx + 1,
                             'Date': new Date(tx.date).toLocaleDateString('en-GB'),
                             'Design / Party': tx.designParty || tx.party || '',
                             'Chip Layout': tx.chipLayout || '',
-                            'Qnty of Sheet': tx.qtyOfSheet ?? '',
-                            'Cards Qty': tx.quantity,
-                            'Unit Balance': rowUnit,
-                            'Office Balance': rowOffice,
-                            'Total Balance': rowTotal,
-                            'Unit Sheets': rowUnit / 24,
-                            'Office Sheets': rowOffice / 10,
-                            'Total Sheets': (rowUnit / 24) + (rowOffice / 10),
+                            'Qnty of Sheet': tx.qtyOfSheet || '',
+                            'Chip Stock IN': tx.type === 'OUT' ? tx.quantity : '',
+                            'Cards Qty': tx.type === 'IN' ? tx.quantity : '',
+                            'Remaining Chip': rowBalance,
                             'Key / Encoding': tx.keyEncoding || '',
-                            'Store': tx.store || (tx.chipLayout === '24' ? 'Unit' : (tx.chipLayout === '10' ? 'Office' : '')),
-                            'Remarks': tx.notes || '',
-                            'Type': tx.type === 'OUT' ? 'ADD' : 'MINUS'
+                            'Remarks': tx.notes || ''
                         };
                     });
 
