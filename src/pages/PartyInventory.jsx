@@ -439,7 +439,6 @@ const PartyInventory = () => {
                                     }} className="input-field py-2.5">
                                         <option value="">-- Select --</option>
                                         <option value="24">24</option>
-                                        <option value="12">12</option>
                                         <option value="10">10</option>
                                     </select>
                                 </div>
@@ -540,7 +539,6 @@ const PartyInventory = () => {
                                     >
                                         <option value="">-- Select --</option>
                                         <option value="24">24</option>
-                                        <option value="12">12</option>
                                         <option value="10">10</option>
                                     </select>
                                 </div>
