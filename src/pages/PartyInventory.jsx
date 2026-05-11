@@ -755,7 +755,7 @@ const PartyInventory = () => {
                             'Chip Layout': tx.chipLayout || '',
                             'Qnty of Sheet': tx.qtyOfSheet || '',
                             'Chip Stock IN': tx.type === 'OUT' ? tx.quantity : '',
-                            'Cards Qty': tx.type === 'IN' ? tx.quantity : '',
+                            'Chip Stock OUT': tx.type === 'IN' ? tx.quantity : '',
                             'Remaining Chip': rowBalance,
                             'Key / Encoding': tx.keyEncoding || '',
                             'Remarks': tx.notes || ''
@@ -823,7 +823,7 @@ const PartyInventory = () => {
                                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                                     <thead>
                                         <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 1 }}>
-                                            {['Date', 'Design/ Party', 'Chip Layout', 'Qnty of Sheet', 'Chip Stock IN', 'Cards Qty', 'Remaining Chip', 'Key/ Encoding', 'Remarks', 'Actions'].map(col => (
+                                            {['Date', 'Design/ Party', 'Chip Layout', 'Qnty of Sheet', 'Chip Stock IN', 'Chip Stock OUT', 'Remaining Chip', 'Key/ Encoding', 'Remarks', 'Actions'].map(col => (
                                                 <th key={col} style={{ padding: '12px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap' }}>{col}</th>
                                             ))}
                                         </tr>
