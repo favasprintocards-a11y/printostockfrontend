@@ -330,8 +330,8 @@ const PartyInventory = () => {
                         {filtered.length === 0 ? (
                             <tr><td colSpan="5" className="text-center py-12 text-slate-400">No stock found.</td></tr>
                         ) : filtered.map(product => {
-                            const unitBreakdown = product.breakdown ? product.breakdown.filter(b => b.store && b.store.toLowerCase() === 'unit') : [];
-                            const officeBreakdown = product.breakdown ? product.breakdown.filter(b => b.store && b.store.toLowerCase() === 'office') : [];
+                            const unitBreakdown = product.breakdown ? product.breakdown.filter(b => b.layout === '24') : [];
+                            const officeBreakdown = product.breakdown ? product.breakdown.filter(b => b.layout === '10') : [];
 
                             return (
                                 <tr key={product._id} className="hover:bg-slate-50 transition-colors">
