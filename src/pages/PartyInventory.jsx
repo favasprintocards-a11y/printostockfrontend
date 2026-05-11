@@ -434,8 +434,8 @@ const PartyInventory = () => {
                                     <select value={chipLayout} onChange={e => {
                                         const val = e.target.value;
                                         setChipLayout(val);
-                                        if (val === '10') setStore('Unit');
-                                        else if (val === '24') setStore('Office');
+                                        if (val === '24') setStore('Unit');
+                                        else if (val === '10') setStore('Office');
                                     }} className="input-field py-2.5">
                                         <option value="">-- Select --</option>
                                         <option value="24">24</option>
@@ -446,7 +446,7 @@ const PartyInventory = () => {
                                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Store</label>
                                     {chipLayout === '10' || chipLayout === '24' ? (
                                         <div className="input-field py-2.5 bg-slate-100 text-slate-500 font-bold border-slate-200 cursor-not-allowed flex items-center">
-                                            {chipLayout === '10' ? 'Unit' : 'Office'}
+                                            {chipLayout === '24' ? 'Unit' : 'Office'}
                                         </div>
                                     ) : (
                                         <select value={store} onChange={e => setStore(e.target.value)} className="input-field py-2.5">
@@ -564,9 +564,9 @@ const PartyInventory = () => {
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>Store</label>
-                                    {chipLayout === '10' || chipLayout === '24' ? (
+                                    {chipLayout === '24' || chipLayout === '10' ? (
                                         <div style={{ width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, background: '#f1f5f9', color: '#64748b', boxSizing: 'border-box', height: '36px', display: 'flex', alignItems: 'center' }}>
-                                            {chipLayout === '10' ? 'Unit' : 'Office'}
+                                            {chipLayout === '24' ? 'Unit' : 'Office'}
                                         </div>
                                     ) : (
                                         <select
@@ -766,7 +766,7 @@ const PartyInventory = () => {
                         return {
                             '#': idx + 1,
                             'Date': new Date(tx.date).toLocaleDateString('en-GB'),
-                            'Design / Par': tx.designParty || tx.party || '',
+                            'Design / Party': tx.designParty || tx.party || '',
                             'Chip Layout': tx.chipLayout || '',
                             'Qnty of Sheet': tx.qtyOfSheet ?? '',
                             'Cards Qty': tx.quantity,
@@ -774,7 +774,7 @@ const PartyInventory = () => {
                             'Office Balance': rowOffice,
                             'Total Balance': rowTotal,
                             'Key / Encoding': tx.keyEncoding || '',
-                            'Store': tx.store || (tx.chipLayout === '10' ? 'Unit' : (tx.chipLayout === '24' ? 'Office' : '')),
+                            'Store': tx.store || (tx.chipLayout === '24' ? 'Unit' : (tx.chipLayout === '10' ? 'Office' : '')),
                             'Remarks': tx.notes || '',
                             'Type': tx.type === 'OUT' ? 'ADD' : 'MINUS'
                         };
@@ -782,9 +782,9 @@ const PartyInventory = () => {
 
                     rows.push({});
                     rows.push({ 'Date': 'SUMMARY OF CURRENT STOCK' });
-                    rows.push({ 'Date': 'UNIT BALANCE', 'Design / Party': totalUnit });
-                    rows.push({ 'Date': 'OFFICE BALANCE', 'Design / Party': totalOffice });
-                    rows.push({ 'Date': 'TOTAL BALANCE', 'Design / Party': totalBalance });
+                    rows.push({ 'Date': 'UNIT BALANCE', 'Design / Party': totalUnit || 0 });
+                    rows.push({ 'Date': 'OFFICE BALANCE', 'Design / Party': totalOffice || 0 });
+                    rows.push({ 'Date': 'TOTAL BALANCE', 'Design / Party': totalBalance || 0 });
 
                     const ws = XLSX.utils.json_to_sheet(rows);
                     ws['!cols'] = [8, 14, 22, 14, 16, 12, 15, 15, 15, 18, 18, 22, 10].map(w => ({ wch: w }));
@@ -919,7 +919,7 @@ const PartyInventory = () => {
                                                         for (let i = 0; i < idx; i++) {
                                                             const t = filteredHistory[i];
                                                             const tQty = t.quantity;
-                                                            const tStore = (t.store || (t.chipLayout === '10' ? 'Unit' : (t.chipLayout === '24' ? 'Office' : ''))).toLowerCase();
+                                                            const tStore = (t.store || (t.chipLayout === '24' ? 'Unit' : (t.chipLayout === '10' ? 'Office' : ''))).toLowerCase();
 
                                                             if (t.type === 'OUT') { // ADD
                                                                 rowTotal -= tQty;
@@ -943,7 +943,7 @@ const PartyInventory = () => {
                                                         {tx.keyEncoding || '—'}
                                                     </td>
                                                     <td style={{ padding: '10px 14px', fontWeight: 600, color: '#475569' }}>
-                                                        {tx.store || (tx.chipLayout === '10' ? 'Unit' : (tx.chipLayout === '24' ? 'Office' : '—'))}
+                                                        {tx.store || (tx.chipLayout === '24' ? 'Unit' : (tx.chipLayout === '10' ? 'Office' : '—'))}
                                                     </td>
                                                     <td style={{ padding: '10px 14px', fontWeight: 600, color: '#64748b', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                         {tx.notes || '—'}
