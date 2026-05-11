@@ -398,6 +398,16 @@ const PartyInventory = () => {
                                 <X size={18} />
                             </button>
                         </div>
+                        {selectedProduct && (
+                            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '1rem', border: '1px solid #e2e8f0', marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                {(selectedProduct.breakdown || []).filter(b => b.balance > 0).map((b, i) => (
+                                    <div key={i} style={{ background: 'white', padding: '6px 12px', borderRadius: '8px', border: '1px solid #f1f5f9', fontSize: '12px', fontWeight: 700 }}>
+                                        <span style={{ color: '#64748b' }}>Layout-{b.layout} x {b.balance}</span> = <span style={{ color: '#F26622' }}>{(b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance).toLocaleString()}</span>
+                                    </div>
+                                ))}
+                                {(selectedProduct.breakdown || []).filter(b => b.balance > 0).length === 0 && <span style={{ fontSize: '12px', color: '#cbd5e1' }}>No current stock available</span>}
+                            </div>
+                        )}
                         <form onSubmit={handleTransaction} className="space-y-4">
                             {allProducts.length > 1 && (
                                 <div className="space-y-1">
@@ -499,9 +509,20 @@ const PartyInventory = () => {
                                 <div key={col} style={{ fontSize: '9px', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', padding: '0 0.5rem' }}>{col}</div>
                             ))}
                         </div>
-                        <div style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr', padding: '0 0', textAlign: 'center' }}>
+                        <div style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr', padding: '0.5rem 0', textAlign: 'center' }}>
                             {['', '', '', 'Chip Stock IN', 'Cards Qty', 'Remaining Chip', 'Remarks'].map((col, i) => i < 6 ? null : null)}
                         </div>
+
+                        {selectedProduct && (
+                            <div style={{ background: '#fef2f2', padding: '1rem 2rem', borderBottom: '1px solid #fee2e2', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '10px', fontWeight: 900, color: '#991b1b', textTransform: 'uppercase', alignSelf: 'center', marginRight: '0.5rem' }}>Current Balance:</span>
+                                {(selectedProduct.breakdown || []).filter(b => b.balance > 0).map((b, i) => (
+                                    <div key={i} style={{ background: 'white', padding: '4px 10px', borderRadius: '6px', border: '1px solid #fecaca', fontSize: '11px', fontWeight: 700 }}>
+                                        <span style={{ color: '#991b1b' }}>Layout-{b.layout} x {b.balance}</span> = <span style={{ color: '#ef4444' }}>{(b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance).toLocaleString()}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <form onSubmit={handleTransaction} style={{ padding: '1.5rem 2rem', background: 'white' }}>
                             {/* Row 1: Date | Design/Party | Chip Layout | Qnty of Sheet | Key/Encoding | Store */}
@@ -532,8 +553,8 @@ const PartyInventory = () => {
                                         onChange={e => {
                                             const val = e.target.value;
                                             setChipLayout(val);
-                                            if (val === '10') setStore('Unit');
-                                            else if (val === '24') setStore('Office');
+                                            if (val === '24') setStore('Unit');
+                                            else if (val === '10') setStore('Office');
                                         }}
                                         style={{ width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 6px', fontSize: '12px', fontWeight: 600, outline: 'none', boxSizing: 'border-box', background: 'white', cursor: 'pointer' }}
                                     >
