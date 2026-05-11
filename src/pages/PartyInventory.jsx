@@ -789,7 +789,7 @@ const PartyInventory = () => {
                         'Qnty of Sheet': tx.qtyOfSheet || '',
                         'Chip Stock IN': tx.type === 'OUT' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0}` : '',
                         'Chip Stock OUT': tx.type === 'IN' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0}` : '',
-                        'Remaining Chip': tx.runningBalance,
+                        'Remaining Chip': `${tx.chipLayout || 'N/A'} x ${Math.floor(tx.runningBalance / (Number(tx.chipLayout) || 1))}`,
                         'Key / Encoding': tx.keyEncoding || '',
                         'Remarks': tx.notes || ''
                     }));
@@ -894,8 +894,8 @@ const PartyInventory = () => {
                                                         <td style={{ padding: '10px 14px', fontWeight: 900, color: '#16a34a', textAlign: 'center', background: tx.type === 'IN' ? '#f0fdf4' : 'transparent' }}>
                                                             {tx.type === 'IN' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0}` : '—'}
                                                         </td>
-                                                        <td style={{ padding: '10px 14px', fontWeight: 900, background: '#f8fafc', textAlign: 'center', fontSize: '14px' }}>
-                                                            {tx.runningBalance.toLocaleString()}
+                                                        <td style={{ padding: '10px 14px', fontWeight: 900, background: '#f8fafc', textAlign: 'center', fontSize: '12px' }}>
+                                                            {tx.chipLayout || 'N/A'} x {Math.floor(tx.runningBalance / (Number(tx.chipLayout) || 1))}
                                                         </td>
                                                         <td style={{ padding: '10px 14px' }}>{tx.keyEncoding || '—'}</td>
                                                         <td style={{ padding: '10px 14px', color: '#94a3b8' }}>{tx.notes || '—'}</td>
