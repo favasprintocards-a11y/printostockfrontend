@@ -800,95 +800,84 @@ const PartyInventory = () => {
 
                 return (
                     <div className="modal-overlay" style={{ alignItems: 'flex-start', paddingTop: '2rem', overflowY: 'auto' }}>
-                        <div style={{ background: 'white', borderRadius: '1.5rem', width: '100%', maxWidth: '1100px', overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.25)' }}>
+                        <div style={{ background: 'white', borderRadius: '1.5rem', width: '100%', maxWidth: '1200px', overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.25)' }}>
+                            {/* Header */}
                             <div style={{ background: '#1e293b', padding: '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <div style={{ color: '#94a3b8', fontSize: '10px', fontWeight: 900, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '4px' }}>STOCK HISTORY & STATUS</div>
+                                    <div style={{ color: '#94a3b8', fontSize: '10px', fontWeight: 900, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '4px' }}>TRANSACTION LOG</div>
                                     <h3 style={{ color: 'white', fontSize: '1.25rem', fontWeight: 900, margin: 0, textTransform: 'uppercase' }}>{selectedProduct?.name}</h3>
                                 </div>
-                                <button onClick={() => setHistoryModalOpen(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '0.75rem', padding: '0.5rem', color: 'white', cursor: 'pointer', lineHeight: 0 }}>
-                                    <X size={20} />
+                                <div style={{ display: 'flex', gap: '2rem' }}>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '9px', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase' }}>UNIT BAL</div>
+                                        <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#CBDB3A' }}>{totalUnit.toLocaleString()}</div>
+                                    </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '9px', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase' }}>OFFICE BAL</div>
+                                        <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#CBDB3A' }}>{totalOffice.toLocaleString()}</div>
+                                    </div>
+                                    <div style={{ textAlign: 'right', background: 'rgba(242,102,34,0.1)', padding: '0.4rem 0.8rem', borderRadius: '0.75rem', border: '1px solid rgba(242,102,34,0.2)' }}>
+                                        <div style={{ fontSize: '9px', fontWeight: 900, color: '#F26622', textTransform: 'uppercase' }}>TOTAL BAL</div>
+                                        <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#F26622' }}>{totalBalance.toLocaleString()}</div>
+                                    </div>
+                                    <button onClick={() => setHistoryModalOpen(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '0.75rem', padding: '0.5rem', color: 'white', cursor: 'pointer', lineHeight: 0, marginLeft: '1rem' }}>
+                                        <X size={20} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Filters */}
+                            <div style={{ padding: '1rem 2rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-end' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Calendar size={14} style={{ color: '#94a3b8' }} />
+                                    <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ border: '1.5px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '12px', outline: 'none' }} />
+                                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#94a3b8' }}>TO</span>
+                                    <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ border: '1.5px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '12px', outline: 'none' }} />
+                                </div>
+                                <button onClick={handleExport} disabled={filteredHistory.length === 0} style={{ padding: '8px 20px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
+                                    <Download size={14} /> EXPORT TO EXCEL
                                 </button>
                             </div>
 
-                            <div style={{ padding: '1.5rem 2rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                                <div style={{ background: 'white', padding: '1rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <div style={{ fontSize: '9px', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>UNIT BALANCE</div>
-                                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#16a34a' }}>{totalUnit.toLocaleString()}</div>
-                                    </div>
-                                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#cbd5e1' }}>CARDS</div>
-                                </div>
-                                <div style={{ background: 'white', padding: '1rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <div style={{ fontSize: '9px', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>OFFICE BALANCE</div>
-                                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#16a34a' }}>{totalOffice.toLocaleString()}</div>
-                                    </div>
-                                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#cbd5e1' }}>CARDS</div>
-                                </div>
-                                <div style={{ background: '#fff7ed', padding: '1rem', borderRadius: '0.75rem', border: '1.5px solid #ffedd5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <div style={{ fontSize: '9px', fontWeight: 900, color: '#9a3412', textTransform: 'uppercase', letterSpacing: '1px' }}>TOTAL BALANCE</div>
-                                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#F26622' }}>{totalBalance.toLocaleString()}</div>
-                                    </div>
-                                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#fdba74' }}>CARDS</div>
-                                </div>
-                            </div>
-
-                            <div style={{ padding: '1rem 2rem', background: 'white', borderBottom: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '180px' }}>
-                                    <Calendar size={14} style={{ color: '#94a3b8' }} />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '3px' }}>From</div>
-                                        <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '12px', outline: 'none' }} />
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '180px' }}>
-                                    <Calendar size={14} style={{ color: '#94a3b8' }} />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '3px' }}>To</div>
-                                        <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '12px', outline: 'none' }} />
-                                    </div>
-                                </div>
-                                <button onClick={handleExport} disabled={filteredHistory.length === 0} style={{ padding: '8px 18px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <Download size={14} /> EXCEL
-                                </button>
-                            </div>
-
-                            <div style={{ overflowX: 'auto', maxHeight: '50vh' }}>
+                            {/* History Table */}
+                            <div style={{ overflowX: 'auto', maxHeight: '60vh' }}>
                                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                                     <thead>
                                         <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 1 }}>
-                                            {['Date', 'Chip Layout', 'Qnty of Sheet', 'Cards Qty', 'Unit Bal', 'Office Bal', 'Total Bal', 'Store', 'Type', 'Actions'].map(col => (
-                                                <th key={col} style={{ padding: '12px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>{col}</th>
+                                            {['Date', 'Design/ Party', 'Chip Layout', 'Qnty of Sheet', 'Chip Stock IN', 'Cards Qty', 'Remaining Chip', 'Key/ Encoding', 'Remarks', 'Actions'].map(col => (
+                                                <th key={col} style={{ padding: '12px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap' }}>{col}</th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {filteredHistory.map((tx, idx) => {
-                                            let rowTotal = totalBalance;
-                                            let rowUnit = totalUnit;
-                                            let rowOffice = totalOffice;
+                                            // Back-calculate running balance
+                                            let rowBalance = totalBalance;
                                             for (let i = 0; i < idx; i++) {
                                                 const t = filteredHistory[i];
-                                                const tStore = (t.store || (t.chipLayout === '24' ? 'Unit' : (t.chipLayout === '10' ? 'Office' : ''))).toLowerCase();
-                                                if (t.type === 'OUT') { rowTotal -= t.quantity; if (tStore === 'unit') rowUnit -= t.quantity; if (tStore === 'office') rowOffice -= t.quantity; } else { rowTotal += t.quantity; if (tStore === 'unit') rowUnit += t.quantity; if (tStore === 'office') rowOffice += t.quantity; }
+                                                if (t.type === 'OUT') rowBalance -= t.quantity; // Remove ADDED stock
+                                                else rowBalance += t.quantity; // Add MINUSED stock
                                             }
+
                                             return (
                                                 <tr key={tx._id} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? 'white' : '#fafafa' }}>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 700 }}>{new Date(tx.date).toLocaleDateString('en-GB')}</td>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 700 }}>{tx.chipLayout}</td>
-                                                    <td style={{ padding: '10px 14px' }}>{tx.qtyOfSheet}</td>
-                                                    <td style={{ padding: '10px 14px', fontWeight: 900, color: tx.type === 'OUT' ? '#F26622' : '#16a34a' }}>{tx.quantity}</td>
-                                                    <td style={{ padding: '10px 14px', background: '#f0fdf4', fontWeight: 700 }}>{rowUnit}</td>
-                                                    <td style={{ padding: '10px 14px', background: '#f0fdf4', fontWeight: 700 }}>{rowOffice}</td>
-                                                    <td style={{ padding: '10px 14px', background: '#dcfce7', fontWeight: 900 }}>{rowTotal}</td>
-                                                    <td style={{ padding: '10px 14px' }}>{tx.store || (tx.chipLayout === '24' ? 'Unit' : 'Office')}</td>
-                                                    <td style={{ padding: '10px 14px' }}>
-                                                        <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '9px', fontWeight: 900, background: tx.type === 'OUT' ? '#fff7ed' : '#fef2f2', color: tx.type === 'OUT' ? '#F26622' : '#ef4444' }}>{tx.type === 'OUT' ? 'ADD' : 'MINUS'}</span>
+                                                    <td style={{ padding: '10px 14px', fontWeight: 700, whiteSpace: 'nowrap' }}>{new Date(tx.date).toLocaleDateString('en-GB')}</td>
+                                                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>{tx.designParty || tx.party || '—'}</td>
+                                                    <td style={{ padding: '10px 14px', fontWeight: 700, textAlign: 'center' }}>{tx.chipLayout}</td>
+                                                    <td style={{ padding: '10px 14px', textAlign: 'center' }}>{tx.qtyOfSheet}</td>
+                                                    <td style={{ padding: '10px 14px', fontWeight: 900, color: '#F26622', textAlign: 'center', background: tx.type === 'OUT' ? '#fff7ed' : 'transparent' }}>
+                                                        {tx.type === 'OUT' ? tx.quantity : '—'}
                                                     </td>
-                                                    <td style={{ padding: '10px 14px' }}>
-                                                        <button onClick={() => openEditTx(tx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><Edit2 size={12} /></button>
+                                                    <td style={{ padding: '10px 14px', fontWeight: 900, color: '#16a34a', textAlign: 'center', background: tx.type === 'IN' ? '#f0fdf4' : 'transparent' }}>
+                                                        {tx.type === 'IN' ? tx.quantity : '—'}
+                                                    </td>
+                                                    <td style={{ padding: '10px 14px', fontWeight: 900, background: '#f8fafc', textAlign: 'center', fontSize: '14px' }}>
+                                                        {rowBalance.toLocaleString()}
+                                                    </td>
+                                                    <td style={{ padding: '10px 14px' }}>{tx.keyEncoding || '—'}</td>
+                                                    <td style={{ padding: '10px 14px', color: '#94a3b8' }}>{tx.notes || '—'}</td>
+                                                    <td style={{ padding: '10px 14px', textAlign: 'center' }}>
+                                                        <button onClick={() => openEditTx(tx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', padding: '4px' }}><Edit2 size={12} /></button>
                                                     </td>
                                                 </tr>
                                             );
@@ -896,8 +885,10 @@ const PartyInventory = () => {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* Footer */}
                             <div style={{ padding: '1rem 2rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0', textAlign: 'right' }}>
-                                <button onClick={() => setHistoryModalOpen(false)} style={{ padding: '0.75rem 2rem', background: '#1e293b', color: 'white', border: 'none', borderRadius: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>Close History</button>
+                                <button onClick={() => setHistoryModalOpen(false)} style={{ padding: '0.75rem 2rem', background: '#1e293b', color: 'white', border: 'none', borderRadius: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>CLOSE</button>
                             </div>
                         </div>
                     </div>
