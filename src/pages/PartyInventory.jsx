@@ -749,17 +749,13 @@ const PartyInventory = () => {
                             else rowBalance += t.quantity;
                         }
 
-                        const calcQty = (tx.chipLayout && tx.qtyOfSheet && tx.chipLayout !== 'N/A') 
-                            ? Number(tx.chipLayout) * Number(tx.qtyOfSheet) 
-                            : tx.quantity;
-
                         return {
                             'Date': new Date(tx.date).toLocaleDateString('en-GB'),
                             'Design / Party': tx.designParty || tx.party || '',
                             'Chip Layout': tx.chipLayout || '',
                             'Qnty of Sheet': tx.qtyOfSheet || '',
-                            'Chip Stock IN': tx.type === 'OUT' ? calcQty : '',
-                            'Chip Stock OUT': tx.type === 'IN' ? calcQty : '',
+                            'Chip Stock IN': tx.type === 'OUT' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0}` : '',
+                            'Chip Stock OUT': tx.type === 'IN' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0}` : '',
                             'Remaining Chip': rowBalance,
                             'Key / Encoding': tx.keyEncoding || '',
                             'Remarks': tx.notes || ''
@@ -849,10 +845,10 @@ const PartyInventory = () => {
                                                     <td style={{ padding: '10px 14px', fontWeight: 700, textAlign: 'center' }}>{tx.chipLayout}</td>
                                                     <td style={{ padding: '10px 14px', textAlign: 'center' }}>{tx.qtyOfSheet}</td>
                                                     <td style={{ padding: '10px 14px', fontWeight: 900, color: '#F26622', textAlign: 'center', background: tx.type === 'OUT' ? '#fff7ed' : 'transparent' }}>
-                                                        {tx.type === 'OUT' ? ((tx.chipLayout && tx.qtyOfSheet && tx.chipLayout !== 'N/A') ? Number(tx.chipLayout) * Number(tx.qtyOfSheet) : tx.quantity) : '—'}
+                                                        {tx.type === 'OUT' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0}` : '—'}
                                                     </td>
                                                     <td style={{ padding: '10px 14px', fontWeight: 900, color: '#16a34a', textAlign: 'center', background: tx.type === 'IN' ? '#f0fdf4' : 'transparent' }}>
-                                                        {tx.type === 'IN' ? ((tx.chipLayout && tx.qtyOfSheet && tx.chipLayout !== 'N/A') ? Number(tx.chipLayout) * Number(tx.qtyOfSheet) : tx.quantity) : '—'}
+                                                        {tx.type === 'IN' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0}` : '—'}
                                                     </td>
                                                     <td style={{ padding: '10px 14px', fontWeight: 900, background: '#f8fafc', textAlign: 'center', fontSize: '14px' }}>
                                                         {rowBalance.toLocaleString()}
