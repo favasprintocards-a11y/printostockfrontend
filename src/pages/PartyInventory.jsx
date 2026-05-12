@@ -138,10 +138,20 @@ const PartyInventory = () => {
         if (!qty || Number(qty) <= 0) return;
         setSaving(true);
         try {
+            // Calculate Total Quantity
+            let totalQty = Number(qty);
+            if (transactionType === 'OUT' && chipLayout) {
+                // ADD STOCK: qty is Sheets
+                totalQty = Number(qty) * Number(chipLayout);
+            } else if (transactionType === 'IN' && qtyOfSheet && chipLayout) {
+                // MINUS STOCK: qty is auto-calculated Total Cards, but we can recalculate to be safe
+                totalQty = Number(qtyOfSheet) * Number(chipLayout);
+            }
+
             await api.post('/api/transactions', {
                 productId: selectedProduct._id,
                 type: transactionType,
-                quantity: qtyOfSheet && chipLayout ? Number(qtyOfSheet) * Number(chipLayout) : qty,
+                quantity: totalQty,
                 party: partyName,
                 notes,
                 chipLayout: chipLayout || undefined,
