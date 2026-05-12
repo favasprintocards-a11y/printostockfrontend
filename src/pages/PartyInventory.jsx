@@ -509,9 +509,6 @@ const PartyInventory = () => {
                                 <div key={col} style={{ fontSize: '9px', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', padding: '0 0.5rem' }}>{col}</div>
                             ))}
                         </div>
-                        <div style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr', padding: '0.5rem 0', textAlign: 'center' }}>
-                            {['', '', '', 'Chip Stock IN', 'Cards Qty', 'Remaining Chip', 'Remarks'].map((col, i) => i < 6 ? null : null)}
-                        </div>
 
                         {selectedProduct && (
                             <div style={{ background: '#fef2f2', padding: '1rem 2rem', borderBottom: '1px solid #fee2e2', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -610,8 +607,8 @@ const PartyInventory = () => {
                             {/* Row 2: Cards Qty (auto) | Remarks */}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 700, color: '#F26622', marginBottom: '4px', textTransform: 'uppercase' }}>Cards Qty (Layout × Sheets)</label>
-                                    <div style={{ border: '2px solid #F26622', borderRadius: '8px', padding: '8px 6px', fontSize: '22px', fontWeight: 900, textAlign: 'center', color: qty ? '#F26622' : '#cbd5e1', background: '#fff7f3', boxSizing: 'border-box', minHeight: '44px' }}>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 700, color: '#dc2626', marginBottom: '4px', textTransform: 'uppercase' }}>Used Chips (Layout × Sheets)</label>
+                                    <div style={{ border: '2px solid #dc2626', borderRadius: '8px', padding: '8px 6px', fontSize: '22px', fontWeight: 900, textAlign: 'center', color: qty ? '#dc2626' : '#cbd5e1', background: '#fef2f2', boxSizing: 'border-box', minHeight: '44px' }}>
                                         {qty || '—'}
                                     </div>
                                 </div>
@@ -765,9 +762,15 @@ const PartyInventory = () => {
                     const fullHistory = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
                     let runningBal = 0;
                     const historyWithBal = fullHistory.map(tx => {
-                        if (tx.type === 'OUT') runningBal += tx.quantity;
-                        else runningBal -= tx.quantity;
-                        return { ...tx, runningBalance: runningBal };
+                        // Formula: Remaining Chip = (Chip Layout × Input Sheet) − Used Chips
+                        const chipL = Number(tx.chipLayout || 0);
+                        const sheets = Number(tx.qtyOfSheet || 0);
+                        const calculatedQty = (chipL > 0 && sheets > 0)
+                            ? chipL * sheets
+                            : (sheets > 0 ? sheets : (tx.quantity || 0));
+                        if (tx.type === 'OUT') runningBal += calculatedQty;  // Chip Stock IN
+                        else runningBal -= calculatedQty;                     // Used Chips
+                        return { ...tx, runningBalance: runningBal, calculatedQty };
                     });
 
                     // 2. Filter by date if needed and sort NEWEST first for display
@@ -787,8 +790,8 @@ const PartyInventory = () => {
                         'Design / Party': tx.designParty || tx.party || '',
                         'Chip Layout': tx.chipLayout || '',
                         'Qnty of Sheet': tx.qtyOfSheet || '',
-                        'Chip Stock IN': tx.type === 'OUT' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${(Number(tx.chipLayout || 0) * Number(tx.qtyOfSheet || 0)).toLocaleString()}` : '',
-                        'Chip Stock OUT': tx.type === 'IN' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${(Number(tx.chipLayout || 0) * Number(tx.qtyOfSheet || 0)).toLocaleString()}` : '',
+                        'Chip Stock IN': tx.type === 'OUT' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${tx.calculatedQty?.toLocaleString() ?? 0}` : '',
+                        'Chip Stock OUT': tx.type === 'IN' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${tx.calculatedQty?.toLocaleString() ?? 0}` : '',
                         'Remaining Chip': tx.runningBalance,
                         'Key / Encoding': tx.keyEncoding || '',
                         'Remarks': tx.notes || ''
@@ -855,20 +858,31 @@ const PartyInventory = () => {
                                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                                     <thead>
                                         <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 1 }}>
-                                            {['Date', 'Design/ Party', 'Chip Layout', 'Qnty of Sheet', 'Chip Stock IN', 'Chip Stock OUT', 'Remaining Chip', 'Key/ Encoding', 'Remarks', 'Actions'].map(col => (
+                                            {['Date', 'Design/ Party', 'Chip Layout', 'Qnty of Sheet', 'Chip Stock IN', 'Chip Stock OUT'].map(col => (
+                                                <th key={col} style={{ padding: '12px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap' }}>{col}</th>
+                                            ))}
+                                            <th title="Formula: (Chip Layout × Input Sheet) − Used Chips" style={{ padding: '12px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                                                Remaining Chip
+                                            </th>
+                                            {['Key/ Encoding', 'Remarks', 'Actions'].map(col => (
                                                 <th key={col} style={{ padding: '12px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap' }}>{col}</th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {(() => {
-                                            // Calculate running balances for the UI table
+                                            // Remaining Chip = (Chip Layout × Input Sheet) − Used Chips
                                             const sortedChron = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
                                             let currentRunningBal = 0;
                                             const withBal = sortedChron.map(tx => {
-                                                if (tx.type === 'OUT') currentRunningBal += tx.quantity;
-                                                else currentRunningBal -= tx.quantity;
-                                                return { ...tx, runningBalance: currentRunningBal };
+                                                const chipL = Number(tx.chipLayout || 0);
+                                                const sheets = Number(tx.qtyOfSheet || 0);
+                                                const calculatedQty = (chipL > 0 && sheets > 0)
+                                                    ? chipL * sheets
+                                                    : (sheets > 0 ? sheets : (tx.quantity || 0));
+                                                if (tx.type === 'OUT') currentRunningBal += calculatedQty;  // Chip Stock IN
+                                                else currentRunningBal -= calculatedQty;                     // Used Chips
+                                                return { ...tx, runningBalance: currentRunningBal, calculatedQty };
                                             });
 
                                             // Filter and show newest first
@@ -889,12 +903,20 @@ const PartyInventory = () => {
                                                         <td style={{ padding: '10px 14px', fontWeight: 700, textAlign: 'center' }}>{tx.chipLayout}</td>
                                                         <td style={{ padding: '10px 14px', textAlign: 'center' }}>{tx.qtyOfSheet}</td>
                                                         <td style={{ padding: '10px 14px', fontWeight: 900, color: '#F26622', textAlign: 'center', background: tx.type === 'OUT' ? '#fff7ed' : 'transparent' }}>
-                                                            {tx.type === 'OUT' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${(Number(tx.chipLayout || 0) * Number(tx.qtyOfSheet || 0)).toLocaleString()}` : '—'}
+                                                            {tx.type === 'OUT' ? (
+                                                                <span title={`${tx.chipLayout} × ${tx.qtyOfSheet} = ${tx.calculatedQty?.toLocaleString()}`}>
+                                                                    {tx.calculatedQty?.toLocaleString() ?? '—'}
+                                                                </span>
+                                                            ) : '—'}
                                                         </td>
-                                                        <td style={{ padding: '10px 14px', fontWeight: 900, color: '#16a34a', textAlign: 'center', background: tx.type === 'IN' ? '#f0fdf4' : 'transparent' }}>
-                                                            {tx.type === 'IN' ? `${tx.chipLayout || 'N/A'} x ${tx.qtyOfSheet || 0} = ${(Number(tx.chipLayout || 0) * Number(tx.qtyOfSheet || 0)).toLocaleString()}` : '—'}
+                                                        <td style={{ padding: '10px 14px', fontWeight: 900, color: '#dc2626', textAlign: 'center', background: tx.type === 'IN' ? '#fef2f2' : 'transparent' }}>
+                                                            {tx.type === 'IN' ? (
+                                                                <span title={`${tx.chipLayout} × ${tx.qtyOfSheet} = ${tx.calculatedQty?.toLocaleString()}`}>
+                                                                    {tx.calculatedQty?.toLocaleString() ?? '—'}
+                                                                </span>
+                                                            ) : '—'}
                                                         </td>
-                                                        <td style={{ padding: '10px 14px', fontWeight: 900, background: '#f8fafc', textAlign: 'center', fontSize: '14px' }}>
+                                                        <td style={{ padding: '10px 14px', fontWeight: 900, background: tx.runningBalance >= 0 ? '#f0fdf4' : '#fef2f2', textAlign: 'center', fontSize: '14px', color: tx.runningBalance >= 0 ? '#16a34a' : '#dc2626', borderLeft: '2px solid', borderLeftColor: tx.runningBalance >= 0 ? '#bbf7d0' : '#fecaca' }}>
                                                             {tx.runningBalance.toLocaleString()}
                                                         </td>
                                                         <td style={{ padding: '10px 14px' }}>{tx.keyEncoding || '—'}</td>
