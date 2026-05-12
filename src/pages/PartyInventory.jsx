@@ -59,7 +59,7 @@ const PartyInventory = () => {
     const exportAllToExcel = () => {
         const rows = filtered.map((product, idx) => {
             const totalBalance = product.breakdown && product.breakdown.length > 0
-                ? product.breakdown.reduce((sum, b) => sum + (b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance), 0)
+                ? product.breakdown.reduce((sum, b) => sum + b.balance, 0)
                 : product.partyBalance;
 
             let totalUnit = 0;
@@ -69,7 +69,7 @@ const PartyInventory = () => {
                 product.breakdown.forEach(b => {
                     const isUnit = b.store && b.store.toLowerCase() === 'unit';
                     const isOffice = b.store && b.store.toLowerCase() === 'office';
-                    const qty = b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance;
+                    const qty = b.balance;
                     if (isUnit) totalUnit += qty;
                     if (isOffice) totalOffice += qty;
                 });
@@ -330,8 +330,8 @@ const PartyInventory = () => {
                         {filtered.length === 0 ? (
                             <tr><td colSpan="5" className="text-center py-12 text-slate-400">No stock found.</td></tr>
                         ) : filtered.map(product => {
-                            const unitBreakdown = product.breakdown ? product.breakdown.filter(b => b.layout === '24' && b.balance > 0) : [];
-                            const officeBreakdown = product.breakdown ? product.breakdown.filter(b => b.layout === '10' && b.balance > 0) : [];
+                            const unitBreakdown = product.breakdown ? product.breakdown.filter(b => b.store && b.store.toLowerCase() === 'unit' && b.balance !== 0) : [];
+                            const officeBreakdown = product.breakdown ? product.breakdown.filter(b => b.store && b.store.toLowerCase() === 'office' && b.balance !== 0) : [];
 
                             return (
                                 <tr key={product._id} className="hover:bg-slate-50 transition-colors">
@@ -339,7 +339,7 @@ const PartyInventory = () => {
                                     <td className="text-center py-3">
                                         <div className="text-xl font-bold text-[#F26622]">
                                             {product.breakdown && product.breakdown.length > 0
-                                                ? product.breakdown.reduce((sum, b) => sum + (b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance), 0)
+                                                ? product.breakdown.reduce((sum, b) => sum + b.balance, 0)
                                                 : product.partyBalance} <span className="text-[10px] text-slate-400">TOTAL</span>
                                         </div>
                                     </td>
@@ -349,7 +349,7 @@ const PartyInventory = () => {
                                                 {unitBreakdown.map((b, i) => (
                                                     <div key={i} className="flex justify-between w-full bg-slate-50 border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wide">
                                                         <span>{b.layout === 'N/A' ? 'NO LAYOUT' : `Layout-${b.layout}`}</span>
-                                                        <span className="text-slate-800 ml-3">x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance}</span>
+                                                        <span className="text-slate-800 ml-3">x{b.layout !== 'N/A' ? b.balance / Number(b.layout) : b.balance} = {b.balance}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -361,7 +361,7 @@ const PartyInventory = () => {
                                                 {officeBreakdown.map((b, i) => (
                                                     <div key={i} className="flex justify-between w-full bg-slate-50 border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wide">
                                                         <span>{b.layout === 'N/A' ? 'NO LAYOUT' : `Layout-${b.layout}`}</span>
-                                                        <span className="text-slate-800 ml-3">x{b.balance} = {b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance}</span>
+                                                        <span className="text-slate-800 ml-3">x{b.layout !== 'N/A' ? b.balance / Number(b.layout) : b.balance} = {b.balance}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -402,7 +402,7 @@ const PartyInventory = () => {
                             <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '1rem', border: '1px solid #e2e8f0', marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                                 {(selectedProduct.breakdown || []).filter(b => b.balance > 0).map((b, i) => (
                                     <div key={i} style={{ background: 'white', padding: '6px 12px', borderRadius: '8px', border: '1px solid #f1f5f9', fontSize: '12px', fontWeight: 700 }}>
-                                        <span style={{ color: '#64748b' }}>Layout-{b.layout} x {b.balance}</span> = <span style={{ color: '#F26622' }}>{(b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance).toLocaleString()}</span>
+                                        <span style={{ color: '#64748b' }}>Layout-{b.layout} x {b.layout !== 'N/A' ? b.balance / Number(b.layout) : b.balance}</span> = <span style={{ color: '#F26622' }}>{b.balance.toLocaleString()}</span>
                                     </div>
                                 ))}
                                 {(selectedProduct.breakdown || []).filter(b => b.balance > 0).length === 0 && <span style={{ fontSize: '12px', color: '#cbd5e1' }}>No current stock available</span>}
@@ -515,7 +515,7 @@ const PartyInventory = () => {
                                 <span style={{ fontSize: '10px', fontWeight: 900, color: '#991b1b', textTransform: 'uppercase', alignSelf: 'center', marginRight: '0.5rem' }}>Current Balance:</span>
                                 {(selectedProduct.breakdown || []).filter(b => b.balance > 0).map((b, i) => (
                                     <div key={i} style={{ background: 'white', padding: '4px 10px', borderRadius: '6px', border: '1px solid #fecaca', fontSize: '11px', fontWeight: 700 }}>
-                                        <span style={{ color: '#991b1b' }}>Layout-{b.layout} x {b.balance}</span> = <span style={{ color: '#ef4444' }}>{(b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance).toLocaleString()}</span>
+                                        <span style={{ color: '#991b1b' }}>Layout-{b.layout} x {b.layout !== 'N/A' ? b.balance / Number(b.layout) : b.balance}</span> = <span style={{ color: '#ef4444' }}>{b.balance.toLocaleString()}</span>
                                     </div>
                                 ))}
                             </div>
@@ -747,13 +747,13 @@ const PartyInventory = () => {
                     selectedProduct.breakdown.forEach(b => {
                         const isUnit = b.store && b.store.toLowerCase() === 'unit';
                         const isOffice = b.store && b.store.toLowerCase() === 'office';
-                        const qty = b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance;
+                        const qty = b.balance;
                         if (isUnit) totalUnit += qty;
                         if (isOffice) totalOffice += qty;
                     });
                 }
                 const totalBalance = selectedProduct?.breakdown && selectedProduct.breakdown.length > 0
-                    ? selectedProduct.breakdown.reduce((sum, b) => sum + (b.layout !== 'N/A' ? b.balance * Number(b.layout) : b.balance), 0)
+                    ? selectedProduct.breakdown.reduce((sum, b) => sum + b.balance, 0)
                     : (selectedProduct?.partyBalance || 0);
 
                 // make exportToExcel use filteredHistory via closure
